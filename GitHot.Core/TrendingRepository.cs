@@ -17,7 +17,7 @@ namespace GitHot.Core
             Id = repo.Id;
             Name = repo.Name;
             Url = repo.HtmlUrl;
-            OwnerName = repo.Owner.Name;
+            OwnerName = repo.Owner.Login;
             OwnerUrl = repo.Owner.Url;
             StarsCount = stars;
             CommitsCount = commits;

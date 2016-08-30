@@ -67,9 +67,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IRepository.cs" />
+    <Compile Include="ObsersvableRepositoriesClientExtensions.cs" />
+    <Compile Include="ObservableGithubClientExtensions.cs" />
+    <Compile Include="ObservableStarredClientExtensions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RepositoryCriteria.cs" />
     <Compile Include="TrendingRepository.cs" />
   </ItemGroup>
   <ItemGroup>
