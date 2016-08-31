@@ -22,25 +22,23 @@ namespace GitHot.Core
             InMemoryCredentialStore credentialStore = new InMemoryCredentialStore(new Credentials(token));
             ObservableGitHubClient client = new ObservableGitHubClient(new ProductHeaderValue("GitHot"), credentialStore);
 
-            Repository repo = client.Repository.Get("rust-lang", "rust").Wait();
+            Repository repo = client.Repository.Get("PowerShell", "PowerShell").Wait();
 
             int days = 14;
 
+            Console.WriteLine("*** With page skipping ***");
+
             Stopwatch sw = Stopwatch.StartNew();
 
-            string[] content;
-            Console.WriteLine("**** Multiple awaits ****");
-
-            sw.Restart();
-            client.GetTrendingStats(repo, TimeSpan.FromDays(days))
-                .Subscribe(onNext: data =>
+            client.GetTrendingStats(repo, TimeSpan.FromDays(days)).Subscribe(onNext:
+                (data) =>
                 {
-                    content = data.Item2.Select(c => c.ToString()).ToArray();
-                    Console.WriteLine($"{repo.FullName}: {string.Join(" ", content)} {data.Item1} | {days} days | {sw.Elapsed}");
-                },
-                onCompleted: () => { sw.Stop(); Console.WriteLine($"completed at {sw.Elapsed}"); });
+                    string content = string.Join(" ", data.Item2.Select(x => x.ToString()));
+                    Console.WriteLine($"{repo.FullName}: {content} | {sw.Elapsed}");
+                }, onCompleted: () => { sw.Stop(); });
 
             Console.ReadLine();
         }
     }
 }
+
