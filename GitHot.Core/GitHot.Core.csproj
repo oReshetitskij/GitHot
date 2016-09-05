@@ -70,6 +70,7 @@
   <ItemGroup>
     <Compile Include="ObsersvableRepositoriesClientExtensions.cs" />
     <Compile Include="ObservableGithubClientExtensions.cs" />
+    <Compile Include="ObservableSearchClientExtensions.cs" />
     <Compile Include="ObservableStarredClientExtensions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
