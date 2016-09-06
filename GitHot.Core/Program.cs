@@ -34,7 +34,7 @@ namespace GitHot.Core
                    onError: (ex) =>
                    {
                        Console.WriteLine("Program terminated due to exception:");
-                       Console.WriteLine(ex.Message);
+                       Console.WriteLine(ex);
                    });
 
             Console.ReadLine();

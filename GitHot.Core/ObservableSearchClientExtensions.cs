@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
+using System.Threading.Tasks;
 using Octokit;
 using Octokit.Reactive;
 
@@ -33,15 +34,28 @@ namespace GitHot.Core
                         Page = page,
                         Stars = Range.GreaterThan(10),
                     })).Items;
-                    
-                    var pageRepos = searchResult.ToDictionary(repo => repo, repo => statsClient.GetCommitActivity(repo.Owner.Login, repo.Name));
 
-                    
-                    foreach (var result in pageRepos)
+                    Dictionary<Repository, Task<CommitActivity>> pageRepos = searchResult.ToDictionary(repo => repo,
+                            repo => statsClient.GetCommitActivity(repo.Owner.Login, repo.Name));
+                    try
                     {
-                        topRepositories.Add(new KeyValuePair<Repository, int>(result.Key, (await result.Value).Activity.Skip(52 - weeks).Select(week => week.Total).Sum()));
+                        foreach (var result in pageRepos)
+                        {
+                            topRepositories.Add(new KeyValuePair<Repository, int>(result.Key, (await result.Value).Activity.Skip(52 - weeks).Select(week => week.Total).Sum()));
+                        }
                     }
-                    
+                    catch (RateLimitExceededException)
+                    {
+                        if (client.Connection.Credentials.GetToken() == Configuration.Instance.Token)
+                        {
+                            client.Connection.Credentials = new Credentials(Configuration.Instance.HelperToken);
+                            page -= 1;
+                            continue;
+                        }
+
+                        throw;
+                    }
+
                     topRepositories.Sort((x, y) => -x.Value.CompareTo(y.Value));
                     topRepositories = topRepositories.Take(count).ToList();
                 }
