@@ -68,6 +68,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration.cs" />
     <Compile Include="ObsersvableRepositoriesClientExtensions.cs" />
     <Compile Include="ObservableGithubClientExtensions.cs" />
     <Compile Include="ObservableSearchClientExtensions.cs" />

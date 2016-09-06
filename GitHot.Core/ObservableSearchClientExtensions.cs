@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Octokit;
 using Octokit.Reactive;
 
@@ -21,14 +17,11 @@ namespace GitHot.Core
         {
             return Observable.Create<Dictionary<Repository, int>>(async (observer) =>
             {
-                int pageCount = 5;
-
                 StatisticsClient statsClient = new StatisticsClient(new ApiConnection(client.Connection));
 
                 List<KeyValuePair<Repository, int>> topRepositories = new List<KeyValuePair<Repository, int>>();
 
-                const int pageSize = 100;
-                for (int page = 1; page <= pageCount; page++)
+                for (int page = 1; page <= Configuration.Instance.PageCount; page++)
                 {
                     Console.WriteLine($"Page {page}");
 
@@ -36,20 +29,20 @@ namespace GitHot.Core
                     {
                         Order = SortDirection.Descending,
                         SortField = RepoSearchSort.Updated,
-                        PerPage = pageSize,
+                        PerPage = Configuration.Instance.ItemsPerPage,
                         Page = page,
-                        Stars = Range.GreaterThan(10)
+                        Stars = Range.GreaterThan(10),
                     })).Items;
-
+                    
                     var pageRepos = searchResult.ToDictionary(repo => repo, repo => statsClient.GetCommitActivity(repo.Owner.Login, repo.Name));
 
-
+                    
                     foreach (var result in pageRepos)
                     {
                         topRepositories.Add(new KeyValuePair<Repository, int>(result.Key, (await result.Value).Activity.Skip(52 - weeks).Select(week => week.Total).Sum()));
                     }
                     
-                    topRepositories.Sort((x, y) => y.Value.CompareTo(x.Value));
+                    topRepositories.Sort((x, y) => -x.Value.CompareTo(y.Value));
                     topRepositories = topRepositories.Take(count).ToList();
                 }
 
@@ -65,14 +58,9 @@ namespace GitHot.Core
         {
             return Observable.Create<Dictionary<Repository, int>>(async (observer) =>
             {
-                int pageCount = 1;
-
-                StatisticsClient statsClient = new StatisticsClient(new ApiConnection(client.Connection));
-
                 List<KeyValuePair<Repository, int>> topRepositories = new List<KeyValuePair<Repository, int>>();
 
-                const int pageSize = 100;
-                for (int page = 1; page <= pageCount; page++)
+                for (int page = 1; page <= Configuration.Instance.PageCount; page++)
                 {
                     Console.WriteLine($"Page {page}");
 
@@ -80,7 +68,7 @@ namespace GitHot.Core
                     {
                         Order = SortDirection.Descending,
                         SortField = RepoSearchSort.Updated,
-                        PerPage = pageSize,
+                        PerPage = Configuration.Instance.ItemsPerPage,
                         Page = page,
                         Stars = Range.GreaterThan(10)
                     })).Items;
@@ -91,7 +79,6 @@ namespace GitHot.Core
 
                     foreach (var result in pageReposByStars)
                     {
-                        Console.WriteLine("Fetching Stars...");
                         topRepositories.Add(new KeyValuePair<Repository, int>(result.Key, (await result.Value).Sum()));
                     }
 
@@ -108,12 +95,9 @@ namespace GitHot.Core
         {
             return Observable.Create<Dictionary<Repository, int>>(async (observer) =>
             {
-                int pageCount = 1;
-
                 List<KeyValuePair<Repository, int>> topRepositories = new List<KeyValuePair<Repository, int>>();
 
-                const int pageSize = 100;
-                for (int page = 1; page <= pageCount; page++)
+                for (int page = 1; page <= Configuration.Instance.PageCount; page++)
                 {
                     Console.WriteLine($"Page {page}");
 
@@ -121,7 +105,7 @@ namespace GitHot.Core
                     {
                         Order = SortDirection.Descending,
                         SortField = RepoSearchSort.Updated,
-                        PerPage = pageSize,
+                        PerPage = Configuration.Instance.ItemsPerPage,
                         Page = page,
                         Stars = Range.GreaterThan(10)
                     })).Items;
@@ -131,7 +115,6 @@ namespace GitHot.Core
 
                     foreach (var result in pageRepos)
                     {
-                        Console.WriteLine("Fetching Contributors...");
                         topRepositories.Add(new KeyValuePair<Repository, int>(result.Key, (await result.Value).Sum()));
                     }
 

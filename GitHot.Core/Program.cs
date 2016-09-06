@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
 using Octokit;
 using Octokit.Internal;
 using Octokit.Reactive;
@@ -10,15 +9,12 @@ namespace GitHot.Core
 {
     class Program
     {
-        //TODO: place token and maximum subscribers count for Merge calls in configuration file 
-        internal static string Token = "43c9828893e4dc1d354ad7f760eee3c31fac4970";
-
         static void Main(string[] args)
         {
-            InMemoryCredentialStore credentialStore = new InMemoryCredentialStore(new Credentials(Token));
+            InMemoryCredentialStore credentialStore = new InMemoryCredentialStore(new Credentials(Configuration.Instance.Token));
             ObservableGitHubClient client = new ObservableGitHubClient(new ProductHeaderValue("GitHot"), credentialStore);
 
-            Repository repo = client.Repository.Get("apple", "swift").Wait();
+            //Repository repo = client.Repository.Get("apple", "swift").Wait();
 
             int days = 21;
             int topCount = 50;
@@ -34,7 +30,12 @@ namespace GitHot.Core
                     {
                         Console.WriteLine($"{repoInfo.Key.FullName}: {repoInfo.Value} | {sw.Elapsed}");
                     }
-                }, onCompleted: () => { sw.Stop(); Console.WriteLine($"Finished at: {sw.Elapsed}"); });
+                }, onCompleted: () => { sw.Stop(); Console.WriteLine($"Finished at: {sw.Elapsed}"); },
+                   onError: (ex) =>
+                   {
+                       Console.WriteLine("Program terminated due to exception:");
+                       Console.WriteLine(ex.Message);
+                   });
 
             Console.ReadLine();
         }

@@ -1,7 +1,6 @@
 ﻿using Octokit;
 using Octokit.Reactive;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
@@ -25,7 +24,7 @@ namespace GitHot.Core
                         Since = from,
                         Until = to
                     }).Select(commit => Observable.Start(() => commit))
-                        .Merge(100)
+                        .Merge(Configuration.Instance.MaxSubscriptions)
                         .GroupBy(x => x.Commit.Author.Date.LocalDateTime.Date).ToDictionary(pair => pair.Key, pair => pair.Count().ToTask());
 
                     // Sort by days, as Dictionary order in undefined
@@ -60,7 +59,7 @@ namespace GitHot.Core
                         Since = from,
                         Until = to
                     }).Select(commit => Observable.Start(() => commit))
-                        .Merge(100)
+                        .Merge(Configuration.Instance.MaxSubscriptions)
                         .GroupBy(x => x.Commit.Author.Date.LocalDateTime.Date).ToDictionary(pair => pair.Key, pair => pair.ToArray().ToTask());
 
                     // Sort by days, as Dictionary order in undefined
