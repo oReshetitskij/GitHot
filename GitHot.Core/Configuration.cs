@@ -13,7 +13,6 @@ namespace GitHot.Core
     class Configuration
     {
         public string Token { get; protected set; }
-        public string HelperToken { get; protected set; }
         public int MaxSubscriptions { get; protected set; }
         public int PageCount { get; protected set; }
         public int ItemsPerPage { get; protected set; }

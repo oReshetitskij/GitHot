@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using Octokit;
 using Octokit.Internal;
 using Octokit.Reactive;
@@ -14,16 +15,14 @@ namespace GitHot.Core
             InMemoryCredentialStore credentialStore = new InMemoryCredentialStore(new Credentials(Configuration.Instance.Token));
             ObservableGitHubClient client = new ObservableGitHubClient(new ProductHeaderValue("GitHot"), credentialStore);
 
-            //Repository repo = client.Repository.Get("apple", "swift").Wait();
-
             int days = 21;
             int topCount = 50;
 
-            Console.WriteLine("*** Getting top repos by Commits ***");
-
             Stopwatch sw = Stopwatch.StartNew();
 
-            client.GetTopRepositoriesByCommits(days / 7, topCount).Subscribe(onNext:
+            Console.WriteLine("*** Getting top repos by Stargazers ***");
+
+            client.GetTopRepositoriesByStargazers(days / 7, topCount).Subscribe(onNext:
                 (data) =>
                 {
                     foreach (var repoInfo in data)
@@ -33,8 +32,7 @@ namespace GitHot.Core
                 }, onCompleted: () => { sw.Stop(); Console.WriteLine($"Finished at: {sw.Elapsed}"); },
                    onError: (ex) =>
                    {
-                       Console.WriteLine("Program terminated due to exception:");
-                       Console.WriteLine(ex);
+                       throw ex;
                    });
 
             Console.ReadLine();

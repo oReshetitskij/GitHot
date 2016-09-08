@@ -23,9 +23,8 @@ namespace GitHot.Core
                     {
                         Since = from,
                         Until = to
-                    }).Select(commit => Observable.Start(() => commit))
-                        .Merge(Configuration.Instance.MaxSubscriptions)
-                        .GroupBy(x => x.Commit.Author.Date.LocalDateTime.Date).ToDictionary(pair => pair.Key, pair => pair.Count().ToTask());
+                    }).GroupBy(x => x.Commit.Author.Date.LocalDateTime.Date)
+                        .ToDictionary(pair => pair.Key, pair => pair.Count().ToTask());
 
                     // Sort by days, as Dictionary order in undefined
                     var commitsByDay = new List<KeyValuePair<DateTime, int>>();
@@ -58,9 +57,8 @@ namespace GitHot.Core
                     {
                         Since = from,
                         Until = to
-                    }).Select(commit => Observable.Start(() => commit))
-                        .Merge(Configuration.Instance.MaxSubscriptions)
-                        .GroupBy(x => x.Commit.Author.Date.LocalDateTime.Date).ToDictionary(pair => pair.Key, pair => pair.ToArray().ToTask());
+                    }).GroupBy(x => x.Commit.Author.Date.LocalDateTime.Date)
+                        .ToDictionary(pair => pair.Key, pair => pair.ToArray().ToTask());
 
                     // Sort by days, as Dictionary order in undefined
                     var contributorsByDay = new List<KeyValuePair<DateTime, int>>();

@@ -32,28 +32,15 @@ namespace GitHot.Core
                         SortField = RepoSearchSort.Updated,
                         PerPage = Configuration.Instance.ItemsPerPage,
                         Page = page,
-                        Stars = Range.GreaterThan(10),
+                        Stars = Range.GreaterThanOrEquals(10),
                     })).Items;
 
                     Dictionary<Repository, Task<CommitActivity>> pageRepos = searchResult.ToDictionary(repo => repo,
                             repo => statsClient.GetCommitActivity(repo.Owner.Login, repo.Name));
-                    try
-                    {
-                        foreach (var result in pageRepos)
-                        {
-                            topRepositories.Add(new KeyValuePair<Repository, int>(result.Key, (await result.Value).Activity.Skip(52 - weeks).Select(week => week.Total).Sum()));
-                        }
-                    }
-                    catch (RateLimitExceededException)
-                    {
-                        if (client.Connection.Credentials.GetToken() == Configuration.Instance.Token)
-                        {
-                            client.Connection.Credentials = new Credentials(Configuration.Instance.HelperToken);
-                            page -= 1;
-                            continue;
-                        }
 
-                        throw;
+                    foreach (var result in pageRepos)
+                    {
+                        topRepositories.Add(new KeyValuePair<Repository, int>(result.Key, (await result.Value).Activity.Skip(52 - weeks).Select(week => week.Total).Sum()));
                     }
 
                     topRepositories.Sort((x, y) => -x.Value.CompareTo(y.Value));
@@ -76,29 +63,32 @@ namespace GitHot.Core
 
                 for (int page = 1; page <= Configuration.Instance.PageCount; page++)
                 {
-                    Console.WriteLine($"Page {page}");
+                        Console.WriteLine($"Page {page}");
 
-                    var searchResult = (await client.Search.SearchRepo(new SearchRepositoriesRequest
-                    {
-                        Order = SortDirection.Descending,
-                        SortField = RepoSearchSort.Updated,
-                        PerPage = Configuration.Instance.ItemsPerPage,
-                        Page = page,
-                        Stars = Range.GreaterThan(10)
-                    })).Items;
+                        var searchResult = (await client.Search.SearchRepo(new SearchRepositoriesRequest
+                        {
+                            Order = SortDirection.Descending,
+                            SortField = RepoSearchSort.Updated,
+                            PerPage = Configuration.Instance.ItemsPerPage,
+                            Page = page,
+                            Stars = Range.GreaterThan(10)
+                        })).Items;
 
-                    var pageReposByStars = searchResult.ToDictionary(repo => repo, repo => client.Activity.Starring
-                                                                                        .GetStarCount(repo, TimeSpan.FromDays(weeks * 7))
-                                                                                        .ToTask());
+                        var pageReposByStars = searchResult.ToDictionary(repo => repo, repo => client.Activity.Starring
+                                                                                            .GetStarCount(repo, TimeSpan.FromDays(weeks * 7))
+                                                                                            .ToTask());
 
-                    foreach (var result in pageReposByStars)
-                    {
-                        topRepositories.Add(new KeyValuePair<Repository, int>(result.Key, (await result.Value).Sum()));
-                    }
+                        foreach (var result in pageReposByStars)
+                        {
+                            topRepositories.Add(new KeyValuePair<Repository, int>(result.Key, (await result.Value).Sum()));
+                        }
 
-                    topRepositories.Sort((x, y) => y.Value.CompareTo(x.Value));
-                    topRepositories = topRepositories.Take(count).ToList();
+                        topRepositories.Sort((x, y) => y.Value.CompareTo(x.Value));
+                        topRepositories = topRepositories.Take(count).ToList();
                 }
+
+                observer.OnNext(topRepositories.ToDictionary(pair => pair.Key, pair => pair.Value));
+                observer.OnCompleted();
 
                 return Disposable.Empty;
             });
@@ -123,6 +113,8 @@ namespace GitHot.Core
                         Page = page,
                         Stars = Range.GreaterThan(10)
                     })).Items;
+
+
                     var pageRepos = searchResult.ToDictionary(repo => repo, repo => client.Repository
                                                     .GetContributorsCount(repo, TimeSpan.FromDays(weeks * 7))
                                                     .ToTask());
@@ -135,6 +127,9 @@ namespace GitHot.Core
                     topRepositories.Sort((x, y) => y.Value.CompareTo(x.Value));
                     topRepositories = topRepositories.Take(count).ToList();
                 }
+
+                observer.OnNext(topRepositories.ToDictionary(pair => pair.Key, pair => pair.Value));
+                observer.OnCompleted();
 
                 return Disposable.Empty;
             });
