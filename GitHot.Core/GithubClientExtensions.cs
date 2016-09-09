@@ -39,7 +39,7 @@ namespace GitHot.Core
                     SortField = RepoSearchSort.Updated,
                     PerPage = Configuration.Instance.ItemsPerPage,
                     Page = page,
-                    Stars = Range.GreaterThanOrEquals(10),
+                    Stars = Range.GreaterThan(10),
                 })).Items;
 
                 Dictionary<Repository, Task<CommitActivity>> pageRepos = searchResult.ToDictionary(repo => repo,
@@ -50,9 +50,9 @@ namespace GitHot.Core
                     topRepositories.Add(new KeyValuePair<Repository, int>(
                         result.Key,
                         (await result.Value).Activity
-                                                .Skip(52 - weeks)
-                                                .Select(week => week.Total)
-                                                .Sum()
+                            .Skip(52 - weeks)
+                            .Select(week => week.Total)
+                            .Sum()
                     ));
                 }
 
@@ -68,6 +68,9 @@ namespace GitHot.Core
             StatisticsClient statsClient = new StatisticsClient(new ApiConnection(client.Connection));
             List<KeyValuePair<Repository, int>> topRepositories = new List<KeyValuePair<Repository, int>>();
 
+            DateTime to = DateTime.Now;
+            DateTime from = to.AddDays(-weeks * 7);
+
             for (int page = 1; page <= Configuration.Instance.PageCount; page++)
             {
                 Console.WriteLine($"Page {page}");
@@ -78,15 +81,22 @@ namespace GitHot.Core
                     SortField = RepoSearchSort.Updated,
                     PerPage = Configuration.Instance.ItemsPerPage,
                     Page = page,
-                    Stars = Range.GreaterThanOrEquals(10),
+                    Stars = Range.GreaterThan(10),
                 })).Items;
 
-                Dictionary<Repository, Task<int[]>> pageRepos = searchResult.ToDictionary(repo => repo,
-                        repo => client.Repository.GetContributorsCount(repo, TimeSpan.FromDays(weeks * 7)));
+                Dictionary<Repository, Task<IReadOnlyList<Contributor>>> pageRepos = searchResult.ToDictionary(repo => repo,
+                        repo => statsClient.GetContributors(repo.Owner.Login, repo.Name));
 
                 foreach (var result in pageRepos)
                 {
-                    topRepositories.Add(new KeyValuePair<Repository, int>(result.Key, (await result.Value).Sum()));
+                    var contributors =
+                        (await result.Value).Where(c => c.Weeks.Any(w => w.Week.LocalDateTime.Date > from &&
+                                                                         w.Week.LocalDateTime.Date < to &&
+                                                                         w.Commits > 0)).ToArray();
+
+                    int contributorsBySpan = contributors.Count();
+
+                    topRepositories.Add(new KeyValuePair<Repository, int>(result.Key, contributorsBySpan));
                 }
 
                 topRepositories.Sort((x, y) => -x.Value.CompareTo(y.Value));
@@ -111,11 +121,11 @@ namespace GitHot.Core
                     SortField = RepoSearchSort.Updated,
                     PerPage = Configuration.Instance.ItemsPerPage,
                     Page = page,
-                    Stars = Range.GreaterThanOrEquals(10),
+                    Stars = Range.GreaterThan(10)
                 })).Items;
 
                 Dictionary<Repository, Task<int[]>> pageRepos = searchResult.ToDictionary(repo => repo,
-                        repo => Task<int[]>.Factory.StartNew(() => 
+                        repo => Task<int[]>.Factory.StartNew(() =>
                             client.Activity.Starring.GetStarCount(repo, TimeSpan.FromDays(weeks * 7))
                             ));
 
