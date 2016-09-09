@@ -13,27 +13,42 @@ namespace GitHot.Core
         static void Main(string[] args)
         {
             InMemoryCredentialStore credentialStore = new InMemoryCredentialStore(new Credentials(Configuration.Instance.Token));
-            ObservableGitHubClient client = new ObservableGitHubClient(new ProductHeaderValue("GitHot"), credentialStore);
+            ObservableGitHubClient observableClient = new ObservableGitHubClient(new ProductHeaderValue("GitHot"), credentialStore);
+            GitHubClient client = new GitHubClient(observableClient.Connection);
 
             int days = 21;
             int topCount = 50;
 
+
+            Console.WriteLine("Comparing performance of Task and Observable methods");
+
+            Repository repo = client.Repository.Get("docker", "docker").Result;
+            Console.WriteLine($"Collecting stats for {repo.FullName} in {days} days");
+
+            Console.WriteLine("*** Tasks ***");
             Stopwatch sw = Stopwatch.StartNew();
 
-            Console.WriteLine("*** Getting top repos by Stargazers ***");
+            var taskStats = client.GetTrendingStats(repo, TimeSpan.FromDays(days)).Result;
 
-            client.GetTopRepositoriesByStargazers(days / 7, topCount).Subscribe(onNext:
-                (data) =>
+            foreach (var pair in taskStats)
+            {
+                Console.WriteLine($"{pair.Key}: {string.Join(" ", pair.Value.Select(x => x.ToString()))}");
+            }
+            sw.Stop();
+            Console.WriteLine($"Finished at {sw.Elapsed}");
+
+            Console.WriteLine("*** Observables ***");
+            sw.Restart();
+            var observableStats = observableClient.GetTrendingStats(repo, TimeSpan.FromDays(days)).Subscribe(
+                onNext: data =>
                 {
-                    foreach (var repoInfo in data)
-                    {
-                        Console.WriteLine($"{repoInfo.Key.FullName}: {repoInfo.Value} | {sw.Elapsed}");
-                    }
-                }, onCompleted: () => { sw.Stop(); Console.WriteLine($"Finished at: {sw.Elapsed}"); },
-                   onError: (ex) =>
-                   {
-                       throw ex;
-                   });
+                    Console.WriteLine($"{data.Item1}: {string.Join(" ", data.Item2.Select(x => x.ToString()))}");
+                },
+                onCompleted: () =>
+                {
+                    Console.WriteLine($"Finished at: {sw.Elapsed}");
+                },
+                onError: ex => { throw ex; });
 
             Console.ReadLine();
         }
