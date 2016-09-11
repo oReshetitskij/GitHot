@@ -69,10 +69,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration.cs" />
+    <Compile Include="GithubApiHelpers.cs" />
     <Compile Include="GithubClientExtensions.cs" />
     <Compile Include="ObsersvableRepositoriesClientExtensions.cs" />
     <Compile Include="ObservableGithubClientExtensions.cs" />
     <Compile Include="ObservableStarredClientExtensions.cs" />
+    <Compile Include="OrganizationsClientExtensions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RepositoriesClientExtensions.cs" />
