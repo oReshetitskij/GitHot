@@ -17,14 +17,15 @@ namespace GitHot.Core
             Task<int[]> stars = Task<int[]>.Factory.StartNew(() => client.Activity.Starring.GetStarCount(repo, span));
 
             return new Dictionary<RepositoryCriteria, int[]>
-                {
-                    { RepositoryCriteria.Commits, await commits },
-                    { RepositoryCriteria.Contributors, await contributors },
-                    { RepositoryCriteria.Stargazers, await stars }
-                };
+            {
+                {RepositoryCriteria.Commits, await commits},
+                {RepositoryCriteria.Contributors, await contributors},
+                {RepositoryCriteria.Stargazers, await stars}
+            };
         }
 
-        public static async Task<Dictionary<Repository, int>> GetTopRepositoriesByCommits(this IGitHubClient client, int weeks, int count)
+        public static async Task<Dictionary<Repository, int>> GetTopRepositoriesByCommits(this IGitHubClient client,
+            int weeks, int count)
         {
             StatisticsClient statsClient = new StatisticsClient(new ApiConnection(client.Connection));
             List<KeyValuePair<Repository, int>> topRepositories = new List<KeyValuePair<Repository, int>>();
@@ -43,7 +44,7 @@ namespace GitHot.Core
                 })).Items;
 
                 Dictionary<Repository, Task<CommitActivity>> pageRepos = searchResult.ToDictionary(repo => repo,
-                        repo => statsClient.GetCommitActivity(repo.Owner.Login, repo.Name));
+                    repo => statsClient.GetCommitActivity(repo.Owner.Login, repo.Name));
 
                 foreach (var result in pageRepos)
                 {
@@ -63,13 +64,14 @@ namespace GitHot.Core
             return topRepositories.ToDictionary(pair => pair.Key, pair => pair.Value);
         }
 
-        public static async Task<Dictionary<Repository, int>> GetTopRepositoriesByContributors(this IGitHubClient client, int weeks, int count)
+        public static async Task<Dictionary<Repository, int>> GetTopRepositoriesByContributors(
+            this IGitHubClient client, int weeks, int count)
         {
             StatisticsClient statsClient = new StatisticsClient(new ApiConnection(client.Connection));
             List<KeyValuePair<Repository, int>> topRepositories = new List<KeyValuePair<Repository, int>>();
 
             DateTime to = DateTime.Now;
-            DateTime from = to.AddDays(-weeks * 7);
+            DateTime from = to.AddDays(-weeks*7);
 
             for (int page = 1; page <= Configuration.Instance.PageCount; page++)
             {
@@ -84,7 +86,8 @@ namespace GitHot.Core
                     Stars = Range.GreaterThan(10),
                 })).Items;
 
-                Dictionary<Repository, Task<IReadOnlyList<Contributor>>> pageRepos = searchResult.ToDictionary(repo => repo,
+                Dictionary<Repository, Task<IReadOnlyList<Contributor>>> pageRepos =
+                    searchResult.ToDictionary(repo => repo,
                         repo => statsClient.GetContributors(repo.Owner.Login, repo.Name));
 
                 foreach (var result in pageRepos)
@@ -106,7 +109,8 @@ namespace GitHot.Core
             return topRepositories.ToDictionary(pair => pair.Key, pair => pair.Value);
         }
 
-        public static async Task<Dictionary<Repository, int>> GetTopRepositoriesByStargazers(this IGitHubClient client, int weeks, int count)
+        public static async Task<Dictionary<Repository, int>> GetTopRepositoriesByStargazers(this IGitHubClient client,
+            int weeks, int count)
         {
             StatisticsClient statsClient = new StatisticsClient(new ApiConnection(client.Connection));
             List<KeyValuePair<Repository, int>> topRepositories = new List<KeyValuePair<Repository, int>>();
@@ -125,9 +129,9 @@ namespace GitHot.Core
                 })).Items;
 
                 Dictionary<Repository, Task<int[]>> pageRepos = searchResult.ToDictionary(repo => repo,
-                        repo => Task<int[]>.Factory.StartNew(() =>
-                            client.Activity.Starring.GetStarCount(repo, TimeSpan.FromDays(weeks * 7))
-                            ));
+                    repo => Task<int[]>.Factory.StartNew(() =>
+                                client.Activity.Starring.GetStarCount(repo, TimeSpan.FromDays(weeks*7))
+                    ));
 
                 foreach (var result in pageRepos)
                 {
