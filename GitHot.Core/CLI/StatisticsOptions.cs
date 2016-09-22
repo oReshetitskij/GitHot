@@ -29,5 +29,12 @@ namespace GitHot.Core.CLI
         [Option('s', "span", HelpText = "Time bounds for collecting statistics in format dd.hh:mm:ss (<days>.<hours>:<minutes>:<seconds>)",
             DefaultValue = "7.00:00:00")]
         public string Span { get; set; }
+
+        public string GetUsageDescription(string givenName)
+        {
+            return
+                $"githot {givenName} - find out repository statistics in given period of time.\n" +
+                $"Usage: githot {givenName} -o <path> [--stargazers|--commits|--contributors|--all] [-v] [-s|--span <timespan>]";
+        }
     }
 }

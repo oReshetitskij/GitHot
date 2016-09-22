@@ -19,27 +19,21 @@ namespace GitHot.Core
         static void Main(string[] args)
         {
             var options = new Options();
-            if (CommandLine.Parser.Default.ParseArguments(args, options, onVerbCommand: (verb, subOption) =>
-            {
-                switch (verb)
+            bool result = CommandLine.Parser.Default.ParseArguments(args.Skip(1).ToArray(), options, onVerbCommand:
+                (verb, subOption) =>
                 {
-                    case "stats":
-                        var statsOption = (StatisticsOptions)subOption;
-                        GetStatisticsCount(statsOption);
-                        break;
-                    case "repos":
-                        var topReposOption = (TopRepositoriesOptions) subOption;
-                        break;
-                }
-            }))
-            {
-                Console.WriteLine("Parse completed without errors.");
-            }
-            else
-            {
-                Console.WriteLine(options.GetUsage());
+                    switch (verb)
+                    {
+                        case "stats":
+                            var statsOption = (StatisticsOptions)subOption;
+                            break;
+                        case "repos":
+                            var topReposOption = (TopRepositoriesOptions)subOption;
+                            break;
+                    }
+                });
 
-            }
+            Console.WriteLine($"Parsing successful: {result}");
         }
 
         public static async void GetStatisticsCount(StatisticsOptions opt)

@@ -22,5 +22,11 @@ namespace GitHot.Core.CLI
 
         [Option("contributors", MutuallyExclusiveSet = "contributors", HelpText = "Get top repositories by contributors")]
         public bool Contributors { get; set; }
+
+        public string GetUsageDescription(string givenName)
+        {
+            return $"githot {givenName} - discover top repositories by certain criteria.\n" +
+                   $"Usage: githot {givenName} -o <path> [-c|--count] [-w|--weeks] [--stargazers|--commits|--contributors]";
+        }
     }
 }
