@@ -23,7 +23,7 @@ namespace GitHot.Core
                     {
                         Since = from,
                         Until = to
-                    }).GroupBy(x => x.Commit.Author.Date.LocalDateTime.Date)
+                    }).GroupBy(x => x.Commit.Committer.Date.LocalDateTime.Date)
                         .ToDictionary(pair => pair.Key, pair => pair.Count().ToTask());
 
                     // Sort by days, as Dictionary order in undefined
@@ -57,7 +57,7 @@ namespace GitHot.Core
                     {
                         Since = from,
                         Until = to
-                    }).GroupBy(x => x.Commit.Author.Date.LocalDateTime.Date)
+                    }).GroupBy(x => x.Commit.Committer.Date.LocalDateTime.Date)
                         .ToDictionary(pair => pair.Key, pair => pair.ToArray().ToTask());
 
                     // Sort by days, as Dictionary order in undefined

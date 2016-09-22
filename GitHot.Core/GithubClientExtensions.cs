@@ -90,8 +90,8 @@ namespace GitHot.Core
                 foreach (var result in pageRepos)
                 {
                     var contributors =
-                        (await result.Value).Where(c => c.Weeks.Any(w => w.Week.LocalDateTime.Date > from &&
-                                                                         w.Week.LocalDateTime.Date < to &&
+                        (await result.Value).Where(c => c.Weeks.Any(w => w.Week.DateTime.Date > from &&
+                                                                         w.Week.DateTime.Date < to &&
                                                                          w.Commits > 0)).ToArray();
 
                     int contributorsBySpan = contributors.Count();

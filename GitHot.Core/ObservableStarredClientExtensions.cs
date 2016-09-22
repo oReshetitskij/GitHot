@@ -62,7 +62,7 @@ namespace GitHot.Core
                         }
                     }
 
-                    var stars = starsArray.GroupBy(x => x.StarredAt.LocalDateTime.Date)
+                    var stars = starsArray.GroupBy(x => x.StarredAt.DateTime.Date)
                         .ToDictionary(pair => pair.Key, pair => pair.Count());
 
                     // Sort by days, as Dictionary order in undefined

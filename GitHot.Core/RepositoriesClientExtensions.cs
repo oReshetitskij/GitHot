@@ -17,7 +17,7 @@ namespace GitHot.Core
             {
                 Since = from,
                 Until = to
-            })).GroupBy(x => x.Commit.Author.Date.LocalDateTime.Date)
+            })).GroupBy(x => x.Commit.Committer.Date.LocalDateTime.Date)
                 .ToDictionary(pair => pair.Key, pair => pair.Count());
 
             // Sort by days, as Dictionary order in undefined
@@ -30,7 +30,7 @@ namespace GitHot.Core
                 commitsByDay.Add(new KeyValuePair<DateTime, int>(date, commitsCount));
             }
 
-            commitsByDay.Sort((x, y) => x.Key.CompareTo(y.Key));
+            commitsByDay.Sort((x, y) => -x.Key.CompareTo(y.Key));
 
             return commitsByDay.Select(x => x.Value).ToArray();
         }
@@ -44,7 +44,7 @@ namespace GitHot.Core
             {
                 Since = from,
                 Until = to
-            })).GroupBy(x => x.Commit.Author.Date.LocalDateTime.Date)
+            })).GroupBy(x => x.Commit.Committer.Date.LocalDateTime.Date)
                 .ToDictionary(pair => pair.Key, pair => pair.ToArray());
 
             // Sort by days, as Dictionary order in undefined
