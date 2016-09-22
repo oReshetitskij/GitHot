@@ -60,11 +60,9 @@ namespace GitHot.Core.CLI
                 MaximumDisplayWidth = 80
             };
 
-            
+
             verbHelp.AddOptions(options);
             return verbHelp;
-
-            return HelpText.AutoBuild(this, verb);
         }
     }
 }

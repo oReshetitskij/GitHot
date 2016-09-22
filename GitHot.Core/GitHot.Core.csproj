@@ -72,7 +72,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CLI\HelpTextExtensions.cs" />
     <Compile Include="CLI\Options.cs" />
     <Compile Include="CLI\TopRepositoriesOptions.cs" />
     <Compile Include="Configuration.cs" />

@@ -9,6 +9,7 @@ using Octokit.Internal;
 using Octokit.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using CommandLine;
 using GitHot.Core.CLI;
 using GitHot.Core.POCO;
 
@@ -18,17 +19,22 @@ namespace GitHot.Core
     {
         static void Main(string[] args)
         {
+            args = new[] { "stats", "PowerShell/PowerShell", "-o", "powershell.json", "--all" };
+
             var options = new Options();
-            bool result = CommandLine.Parser.Default.ParseArguments(args.Skip(1).ToArray(), options, onVerbCommand:
+            bool result = CommandLine.Parser.Default.ParseArguments(args, options, onVerbCommand:
                 (verb, subOption) =>
                 {
                     switch (verb)
                     {
                         case "stats":
                             var statsOption = (StatisticsOptions)subOption;
+                            Task getStats = GetStatisticsCount(statsOption);
+                            Task.WaitAll(getStats);
                             break;
                         case "repos":
                             var topReposOption = (TopRepositoriesOptions)subOption;
+                            GetTopRepositories(topReposOption);
                             break;
                     }
                 });
@@ -36,7 +42,7 @@ namespace GitHot.Core
             Console.WriteLine($"Parsing successful: {result}");
         }
 
-        public static async void GetStatisticsCount(StatisticsOptions opt)
+        public static async Task GetStatisticsCount(StatisticsOptions opt)
         {
             GitHubClient github = new GitHubClient(new ProductHeaderValue("GitHot"))
             {
@@ -84,7 +90,8 @@ namespace GitHot.Core
                 OwnerUrl = repo.Owner.HtmlUrl,
                 Commits = stats[RepositoryCriteria.Commits],
                 Stars = stats[RepositoryCriteria.Stargazers],
-                Contributors = stats[RepositoryCriteria.Contributors]
+                Contributors = stats[RepositoryCriteria.Contributors],
+                Span = span
             };
 
             SimpleJsonSerializer serializer = new SimpleJsonSerializer();
@@ -94,6 +101,7 @@ namespace GitHot.Core
             {
                 StreamWriter sw = new StreamWriter(opt.Output, false);
                 sw.Write(json);
+                sw.Close();
             }
             catch (ArgumentException)
             {
