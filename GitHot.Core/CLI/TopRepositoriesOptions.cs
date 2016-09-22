@@ -6,7 +6,10 @@ namespace GitHot.Core.CLI
     class TopRepositoriesOptions
     {
         [Option('c', "count", Required = true, HelpText = "Number of repositories to show", DefaultValue = 50)]
-        public int? Count { get; set; }
+        public int Count { get; set; }
+
+        [Option('w', "weeks", Required = true, HelpText = "Number of weeks for collecting statistics", DefaultValue = 1)]
+        public int Weeks { get; set; }
 
         [Option('o', "output", HelpText = "Filepath for saving output")]
         public string Output { get; set; }

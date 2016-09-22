@@ -23,7 +23,7 @@ namespace GitHot.Core.CLI
         [Option('v', "verbose", HelpText = "Provide verbose output")]
         public string Verbose { get; set; }
 
-        [Option('o', "output", HelpText = "Write output to <file>")]
+        [Option('o', "output", HelpText = "Write output to <file>", Required = true)]
         public string Output { get; set; }
 
         [Option('s', "span", HelpText = "Time bounds for collecting statistics in format dd.hh:mm:ss (<days>.<hours>:<minutes>:<seconds>)",

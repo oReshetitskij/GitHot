@@ -21,13 +21,20 @@ namespace GitHot.Core.CLI
         {
             var help = new HelpText
             {
-                Heading = new HeadingInfo("GitHot"),
+                Heading = new HeadingInfo("GitHot - discover the most trending repositories right now!"),
                 MaximumDisplayWidth = 80
             };
 
-            help.AddPreOptionsLine("githot <command> [<args>]");
+            help.AddPreOptionsLine("Usage: githot <command> [<args>]");
+            help.AddOptions(this);
 
             return help;
+        }
+
+        [HelpVerbOption]
+        public string GetUsage(string verb)
+        {
+            return HelpText.AutoBuild(this, verb);
         }
     }
 }

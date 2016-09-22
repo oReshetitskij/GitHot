@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>GitHot.Core</RootNamespace>
-    <AssemblyName>GitHot.Core</AssemblyName>
+    <AssemblyName>GitHot</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -80,12 +80,13 @@
     <Compile Include="ObservableGithubClientExtensions.cs" />
     <Compile Include="ObservableStarredClientExtensions.cs" />
     <Compile Include="CLI\StatisticsOptions.cs" />
+    <Compile Include="POCO\TopRepository.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RepositoriesClientExtensions.cs" />
     <Compile Include="RepositoryCriteria.cs" />
     <Compile Include="StarredClientExtensions.cs" />
-    <Compile Include="TrendingRepository.cs" />
+    <Compile Include="POCO\TrendingRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
