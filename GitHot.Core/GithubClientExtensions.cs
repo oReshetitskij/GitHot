@@ -24,6 +24,22 @@ namespace GitHot.Core
                 };
         }
 
+        public static async Task<Tuple<RepositoryCriteria, int[]>> GetTrendingStats(this IGitHubClient client,
+            Repository repo, TimeSpan span, RepositoryCriteria criteria)
+        {
+            switch (criteria)
+            {
+                case RepositoryCriteria.Commits:
+                    return new Tuple<RepositoryCriteria, int[]>(criteria, await client.Repository.GetCommitCount(repo, span));
+                case RepositoryCriteria.Contributors:
+                    return new Tuple<RepositoryCriteria, int[]>(criteria, await client.Repository.GetContributorsCount(repo, span));
+                case RepositoryCriteria.Stargazers:
+                    return new Tuple<RepositoryCriteria, int[]>(criteria, await Task.FromResult(client.Activity.Starring.GetStarCount(repo, span)));
+                default:
+                    throw new ArgumentException("No method found for given criteria", nameof(criteria));
+            }
+        }
+
         public static async Task<Dictionary<Repository, int>> GetTopRepositoriesByCommits(this IGitHubClient client, int weeks, int count)
         {
             StatisticsClient statsClient = new StatisticsClient(new ApiConnection(client.Connection));

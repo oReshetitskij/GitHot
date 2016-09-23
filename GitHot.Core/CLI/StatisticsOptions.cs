@@ -8,17 +8,14 @@ namespace GitHot.Core.CLI
         [ValueOption(0)]
         public string Repository { get; set; }
 
-        [Option("stargazers", MutuallyExclusiveSet = "stargazers", HelpText = "Get statistics by stargazers")]
+        [Option("stargazers", MutuallyExclusiveSet = "stargazers", HelpText = "Get statistics only by stargazers")]
         public bool Stargazers { get; set; }
 
-        [Option("commits", MutuallyExclusiveSet = "commits", HelpText = "Get statistics by commits")]
+        [Option("commits", MutuallyExclusiveSet = "commits", HelpText = "Get statistics only by commits")]
         public bool Commits { get; set; }
 
-        [Option("contributors", MutuallyExclusiveSet = "contributors", HelpText = "Get statistics by contributors")]
+        [Option("contributors", MutuallyExclusiveSet = "contributors", HelpText = "Get statistics only by contributors")]
         public bool Contributors { get; set; }
-
-        [Option("all", MutuallyExclusiveSet = "all", HelpText = "Get statistics by all provided criterias")]
-        public bool All { get; set; }
 
         [Option('v', "verbose", HelpText = "Provide verbose output")]
         public string Verbose { get; set; }
@@ -30,11 +27,31 @@ namespace GitHot.Core.CLI
             DefaultValue = "7.00:00:00")]
         public string Span { get; set; }
 
+        public bool All => !(Commits || Contributors || Stargazers);
+
         public string GetUsageDescription(string givenName)
         {
             return
                 $"githot {givenName} - find out repository statistics in given period of time.\n" +
-                $"Usage: githot {givenName} -o <path> [--stargazers|--commits|--contributors|--all] [-v] [-s|--span <timespan>]";
+                $"Usage: githot {givenName} -o <path> [--stargazers|--commits|--contributors] [-v] [-s|--span <timespan>]";
+        }
+
+        public string GetSelectedCriteria()
+        {
+            if (Commits)
+            {
+                return "Commits";
+            }
+            if (Contributors)
+            {
+                return "Contributors";
+            }
+            if (Stargazers)
+            {
+                return "Stargazers";
+            }
+
+            return null;
         }
     }
 }

@@ -19,7 +19,7 @@ namespace GitHot.Core
     {
         static void Main(string[] args)
         {
-            args = new[] { "stats", "PowerShell/PowerShell", "-o", "powershell.json", "--all" };
+            args = new[] { "stats", "PowerShell/PowerShell", "-o", "powershell.json", "--stargazers"};
 
             var options = new Options();
             bool result = CommandLine.Parser.Default.ParseArguments(args, options, onVerbCommand:
@@ -79,7 +79,30 @@ namespace GitHot.Core
                 return;
             }
 
-            var stats = await github.GetTrendingStats(repo, span);
+            Dictionary<RepositoryCriteria, int[]> stats;
+            if (opt.All)
+            {
+                stats = await github.GetTrendingStats(repo, span);
+            }
+            else
+            {
+                RepositoryCriteria selectedCriteria = (RepositoryCriteria)Enum.Parse(typeof(RepositoryCriteria),
+                                                                                opt.GetSelectedCriteria());
+
+                var criteriaStats = await github.GetTrendingStats(repo, span, selectedCriteria);
+
+                stats = new Dictionary<RepositoryCriteria, int[]>();
+                foreach (var criteria in Enum.GetValues(typeof(RepositoryCriteria)))
+                {
+                    if ((RepositoryCriteria)criteria == selectedCriteria)
+                    {
+                        stats.Add(selectedCriteria, criteriaStats.Item2);
+                        continue;
+                    }
+
+                    stats.Add((RepositoryCriteria)criteria, null);
+                }
+            }
 
             TrendingRepository data = new TrendingRepository
             {
