@@ -1,15 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
-using System.IO.Ports;
 using System.Linq;
 using Octokit;
 using Octokit.Internal;
-using Octokit.Reactive;
-using System.Reactive.Linq;
-using System.Security.AccessControl;
 using System.Threading.Tasks;
 using CommandLine;
 using GitHot.Core.CLI;
@@ -21,10 +15,10 @@ namespace GitHot.Core
     {
         static void Main(string[] args)
         {
-            args = new[] { "repos", "-o", "repos.json", "--commits", "-c", "100", "-w", "2" };
+            args = new[] { "repos", "-o", "contributors.json", "--contributors", "--count", "100", "--weeks", "2" };
 
             var options = new Options();
-            bool result = CommandLine.Parser.Default.ParseArguments(args, options, onVerbCommand:
+            bool result = Parser.Default.ParseArguments(args, options, onVerbCommand:
                 (verb, subOption) =>
                 {
                     switch (verb)
@@ -204,6 +198,14 @@ namespace GitHot.Core
             {
                 Console.WriteLine("Invalid output path");
             }
+            catch (DirectoryNotFoundException)
+            {
+                Console.WriteLine($"Directory not found: {Path.GetFullPath(opt.Output)}");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                Console.WriteLine("Not enough privilegies to create file");
+            }
         }
 
         private static async Task GetTopOrganizations(TopOrganizationsOptions opt)
@@ -226,7 +228,7 @@ namespace GitHot.Core
             }
 
 
-            var data = orgs.ToList().Select(pair => new TopOrganization()
+            var data = orgs.ToList().Select(pair => new TopOrganization
             {
                 Id = pair.Key.Id,
                 Name = pair.Key.Name,
@@ -252,10 +254,19 @@ namespace GitHot.Core
             {
                 StreamWriter sw = new StreamWriter(opt.Output, false);
                 sw.Write(json);
+                sw.Close();
             }
             catch (ArgumentException)
             {
                 Console.WriteLine("Invalid output path");
+            }
+            catch (DirectoryNotFoundException)
+            {
+                Console.WriteLine($"Directory not found: {Path.GetFullPath(opt.Output)}");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                Console.WriteLine("Not enough privilegies to create file");
             }
         }
     }

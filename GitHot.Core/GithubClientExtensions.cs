@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Octokit;
 
@@ -102,25 +103,31 @@ namespace GitHot.Core
                     Stars = Range.GreaterThan(100),
                 })).Items;
 
-                Dictionary<Repository, Task<IReadOnlyList<Contributor>>> pageRepos =
-                    searchResult.ToDictionary(repo => repo,
-                        repo => statsClient.GetContributors(repo.Owner.Login, repo.Name));
 
-                foreach (var result in pageRepos)
+                var pageRepos = searchResult.ToDictionary(repo => repo,
+                                                repo => statsClient.GetContributors(repo.Owner.Login, repo.Name)).ToList();
+
+                for (int i = 0; i < pageRepos.Count; i++)
                 {
-                    var contributors =
-                        (await result.Value).Where(c => c.Weeks.Any(w => w.Week.DateTime.Date > from &&
-                                                                         w.Week.DateTime.Date < to &&
-                                                                         w.Commits > 0)).ToArray();
+                    try
+                    {
+                        var contributors =
+                            (await pageRepos[i].Value).Where(c => c.Weeks.Any(w => w.Week.DateTime.Date > from &&
+                                                                             w.Week.DateTime.Date < to &&
+                                                                             w.Commits > 0)).ToArray();
 
-                    int contributorsBySpan = contributors.Count();
-
-                    topRepositories.Add(new KeyValuePair<Repository, int>(result.Key, contributorsBySpan));
+                        int contributorsBySpan = contributors.Length;
+                        topRepositories.Add(new KeyValuePair<Repository, int>(pageRepos[i].Key, contributorsBySpan));
+                    }
+                    catch (Exception)
+                    {
+                        Console.WriteLine($"Exception while processing {pageRepos[i].Key.FullName}");
+                    }
                 }
-
-                topRepositories.Sort((x, y) => -x.Value.CompareTo(y.Value));
-                topRepositories = topRepositories.Take(count).ToList();
             }
+
+            topRepositories.Sort((x, y) => -x.Value.CompareTo(y.Value));
+            topRepositories = topRepositories.Take(count).ToList();
 
             return topRepositories.ToDictionary(pair => pair.Key, pair => pair.Value);
         }

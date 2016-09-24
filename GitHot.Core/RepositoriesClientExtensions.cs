@@ -13,7 +13,7 @@ namespace GitHot.Core
             DateTime to = DateTime.Now;
             DateTime from = to.Add(-span);
 
-            IDictionary<DateTime, int> commits = (await client.Commit.GetAll(repo.Owner.Login, repo.Name, new CommitRequest()
+            IDictionary<DateTime, int> commits = (await client.Commit.GetAll(repo.Owner.Login, repo.Name, new CommitRequest
             {
                 Since = from,
                 Until = to
@@ -40,7 +40,7 @@ namespace GitHot.Core
             DateTime to = DateTime.Now;
             DateTime from = to.Add(-span);
 
-            IDictionary<DateTime, GitHubCommit[]> commits = (await client.Commit.GetAll(repo.Owner.Login, repo.Name, new CommitRequest()
+            IDictionary<DateTime, GitHubCommit[]> commits = (await client.Commit.GetAll(repo.Owner.Login, repo.Name, new CommitRequest
             {
                 Since = from,
                 Until = to
@@ -57,7 +57,7 @@ namespace GitHot.Core
                 int contributorsCount = 0;
                 if (commits.ContainsKey(date))
                 {
-                    contributorsCount = (commits[date])
+                    contributorsCount = commits[date]
                         .Select(commit => commit.Author?.Login)
                         .Where(login => login != null)
                         .Distinct()
@@ -67,7 +67,7 @@ namespace GitHot.Core
                 contributorsByDay.Add(new KeyValuePair<DateTime, int>(date, contributorsCount));
             }
 
-            contributorsByDay.Sort((x, y) => x.Key.CompareTo(y.Key));
+            contributorsByDay.Sort((x, y) => -x.Key.CompareTo(y.Key));
 
             return contributorsByDay.Select(x => x.Value).ToArray();
         }

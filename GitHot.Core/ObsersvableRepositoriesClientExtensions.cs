@@ -19,8 +19,8 @@ namespace GitHot.Core
                     DateTime to = DateTime.Now;
                     DateTime from = to.Add(-span);
 
-                    IDictionary<DateTime, Task<int>> commits = await client.Commit.GetAll(repo.Owner.Login, repo.Name, new CommitRequest()
-                    {
+                    IDictionary<DateTime, Task<int>> commits = await client.Commit.GetAll(repo.Owner.Login, repo.Name, new CommitRequest
+                        {
                         Since = from,
                         Until = to
                     }).GroupBy(x => x.Commit.Committer.Date.LocalDateTime.Date)
@@ -53,8 +53,8 @@ namespace GitHot.Core
                     DateTime to = DateTime.Now;
                     DateTime from = to.Add(-span);
 
-                    IDictionary<DateTime, Task<GitHubCommit[]>> commits = await client.Commit.GetAll(repo.Owner.Login, repo.Name, new CommitRequest()
-                    {
+                    IDictionary<DateTime, Task<GitHubCommit[]>> commits = await client.Commit.GetAll(repo.Owner.Login, repo.Name, new CommitRequest
+                        {
                         Since = from,
                         Until = to
                     }).GroupBy(x => x.Commit.Committer.Date.LocalDateTime.Date)
