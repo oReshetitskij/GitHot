@@ -12,7 +12,7 @@ namespace GitHot.Core
 {
     public static class OrganizationsClientExtensions
     {
-        public static async Task<int> GetOrganizationCommitCount(this OrganizationsClient client, Organization org, int weeks, IGitHubClient github)
+        public static async Task<int> GetOrganizationCommitCount(this IOrganizationsClient client, User org, int weeks, IGitHubClient github)
         {
             DateTime to = DateTime.Now;
             DateTime from = to.Add(-TimeSpan.FromDays(7 * weeks));
@@ -45,7 +45,7 @@ namespace GitHot.Core
             return commitsCount;
         }
 
-        public static async Task<double> GetOrganizationMemberAverageCommitCount(this OrganizationsClient client, Organization org, int weeks, IGitHubClient github)
+        public static async Task<double> GetOrganizationMemberAverageCommitCount(this IOrganizationsClient client, User org, int weeks, IGitHubClient github)
         {
             int days = weeks * 7;
 

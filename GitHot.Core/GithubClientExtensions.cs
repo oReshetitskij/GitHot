@@ -87,7 +87,7 @@ namespace GitHot.Core
             List<KeyValuePair<Repository, int>> topRepositories = new List<KeyValuePair<Repository, int>>();
 
             DateTime to = DateTime.Now;
-            DateTime from = to.AddDays(-weeks*7);
+            DateTime from = to.AddDays(-weeks * 7);
 
             for (int page = 1; page <= Configuration.Instance.PageCount; page++)
             {
@@ -146,7 +146,7 @@ namespace GitHot.Core
 
                 Dictionary<Repository, Task<int[]>> pageRepos = searchResult.ToDictionary(repo => repo,
                     repo => Task<int[]>.Factory.StartNew(() =>
-                                client.Activity.Starring.GetStarCount(repo, TimeSpan.FromDays(weeks*7))
+                                client.Activity.Starring.GetStarCount(repo, TimeSpan.FromDays(weeks * 7))
                     ));
 
                 foreach (var result in pageRepos)
@@ -159,6 +159,70 @@ namespace GitHot.Core
             }
 
             return topRepositories.ToDictionary(pair => pair.Key, pair => pair.Value);
+        }
+
+        public static async Task<Dictionary<User, int>> GetTopOrganizationsByTotalCommits(
+            this IGitHubClient client, int weeks, int count)
+        {
+            var topOrganizations = new List<KeyValuePair<User, int>>();
+
+            for (int page = 1; page <= Configuration.Instance.PageCount; page++)
+            {
+                Console.WriteLine($"Page {page}");
+
+                var searchResult = (await client.Search.SearchUsers(new SearchUsersRequest("type:org")
+                {
+                    Order = SortDirection.Descending,
+                    PerPage = Configuration.Instance.ItemsPerPage,
+                    Page = page,
+                    Repositories = Range.GreaterThan(10)
+                })).Items;
+
+                Dictionary<User, Task<int>> pageOrgs = searchResult.ToDictionary(org => org,
+                    org => client.Organization.GetOrganizationCommitCount(org, weeks, client));
+
+                foreach (var result in pageOrgs)
+                {
+                    topOrganizations.Add(new KeyValuePair<User, int>(result.Key, await result.Value));
+                }
+
+                topOrganizations.Sort((x, y) => -x.Value.CompareTo(y.Value));
+                topOrganizations = topOrganizations.Take(count).ToList();
+            }
+
+            return topOrganizations.ToDictionary(pair => pair.Key, pair => pair.Value);
+        }
+
+        public static async Task<Dictionary<User, double>> GetTopOrganizationsByMemberAverageCommits(
+            this IGitHubClient client, int weeks, int count)
+        {
+            var topOrganizations = new List<KeyValuePair<User, double>>();
+
+            for (int page = 1; page <= Configuration.Instance.PageCount; page++)
+            {
+                Console.WriteLine($"Page {page}");
+
+                var searchResult = (await client.Search.SearchUsers(new SearchUsersRequest("type:org")
+                {
+                    Order = SortDirection.Descending,
+                    PerPage = Configuration.Instance.ItemsPerPage,
+                    Page = page,
+                    Repositories = Range.GreaterThan(10)
+                })).Items;
+
+                Dictionary<User, Task<double>> pageOrgs = searchResult.ToDictionary(org => org,
+                    org => client.Organization.GetOrganizationMemberAverageCommitCount(org, weeks, client));
+
+                foreach (var result in pageOrgs)
+                {
+                    topOrganizations.Add(new KeyValuePair<User, double>(result.Key, await result.Value));
+                }
+
+                topOrganizations.Sort((x, y) => -x.Value.CompareTo(y.Value));
+                topOrganizations = topOrganizations.Take(count).ToList();
+            }
+
+            return topOrganizations.ToDictionary(pair => pair.Key, pair => pair.Value);
         }
     }
 }
