@@ -56,7 +56,7 @@ namespace GitHot.Core
                     SortField = RepoSearchSort.Updated,
                     PerPage = Configuration.Instance.ItemsPerPage,
                     Page = page,
-                    Stars = Range.GreaterThan(10),
+                    Stars = Range.GreaterThan(100),
                 })).Items;
 
                 Dictionary<Repository, Task<CommitActivity>> pageRepos = searchResult.ToDictionary(repo => repo,
@@ -99,7 +99,7 @@ namespace GitHot.Core
                     SortField = RepoSearchSort.Updated,
                     PerPage = Configuration.Instance.ItemsPerPage,
                     Page = page,
-                    Stars = Range.GreaterThan(10),
+                    Stars = Range.GreaterThan(100),
                 })).Items;
 
                 Dictionary<Repository, Task<IReadOnlyList<Contributor>>> pageRepos =
@@ -141,7 +141,7 @@ namespace GitHot.Core
                     SortField = RepoSearchSort.Updated,
                     PerPage = Configuration.Instance.ItemsPerPage,
                     Page = page,
-                    Stars = Range.GreaterThan(10)
+                    Stars = Range.GreaterThan(100)
                 })).Items;
 
                 Dictionary<Repository, Task<int[]>> pageRepos = searchResult.ToDictionary(repo => repo,

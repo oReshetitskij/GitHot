@@ -13,7 +13,6 @@ namespace GitHot.Core.POCO
         public int[] Stars { get; set; }
         public int[] Commits { get; set; }
         public int[] Contributors { get; set; }
-
         public TimeSpan Span { get; set; }
     }
 }

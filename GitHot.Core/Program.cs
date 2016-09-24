@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Ports;
@@ -20,7 +21,7 @@ namespace GitHot.Core
     {
         static void Main(string[] args)
         {
-            args = new[] { "stats", "tensorflow/models", "-o", "tensorflow-models.json", "--stargazers", "-s", "30.00:00:00" };
+            args = new[] { "repos", "-o", "repos.json", "--commits", "-c", "100", "-w", "2" };
 
             var options = new Options();
             bool result = CommandLine.Parser.Default.ParseArguments(args, options, onVerbCommand:
@@ -35,7 +36,13 @@ namespace GitHot.Core
                             break;
                         case "repos":
                             var topReposOption = (TopRepositoriesOptions)subOption;
-                            GetTopRepositories(topReposOption);
+                            Task getRepos = GetTopRepositories(topReposOption);
+                            Task.WaitAll(getRepos);
+                            break;
+                        case "orgs":
+                            var topOrgsOption = (TopOrganizationsOptions)subOption;
+                            Task getOrgs = GetTopOrganizations(topOrgsOption);
+                            Task.WaitAll(getOrgs);
                             break;
                     }
                 });
@@ -144,7 +151,7 @@ namespace GitHot.Core
             }
         }
 
-        public static async void GetTopRepositories(TopRepositoriesOptions opt)
+        public static async Task GetTopRepositories(TopRepositoriesOptions opt)
         {
             GitHubClient github = new GitHubClient(new ProductHeaderValue("GitHot"))
             {
@@ -183,6 +190,60 @@ namespace GitHot.Core
             }).ToList();
 
             data.Sort((x, y) => -x.Value.CompareTo(y.Value));
+
+            SimpleJsonSerializer serializer = new SimpleJsonSerializer();
+            string json = serializer.Serialize(data);
+
+            try
+            {
+                StreamWriter sw = new StreamWriter(opt.Output, false);
+                sw.Write(json);
+                sw.Close();
+            }
+            catch (ArgumentException)
+            {
+                Console.WriteLine("Invalid output path");
+            }
+        }
+
+        private static async Task GetTopOrganizations(TopOrganizationsOptions opt)
+        {
+            GitHubClient github = new GitHubClient(new ProductHeaderValue("GitHot"))
+            {
+                Credentials = new Credentials(Configuration.Instance.Token)
+            };
+
+            Dictionary<User, double> orgs;
+
+            if (opt.TotalCommits)
+            {
+                orgs = (await github.GetTopOrganizationsByTotalCommits(opt.Weeks, opt.Count))
+                        .ToDictionary(x => x.Key, x => Convert.ToDouble(x.Value));
+            }
+            else
+            {
+                orgs = await github.GetTopOrganizationsByMemberAverageCommits(opt.Weeks, opt.Count);
+            }
+
+
+            var data = orgs.ToList().Select(pair => new TopOrganization()
+            {
+                Id = pair.Key.Id,
+                Name = pair.Key.Name,
+                Url = pair.Key.HtmlUrl,
+                Span = TimeSpan.FromDays(opt.Weeks * 7),
+                TotalCommits = opt.TotalCommits ? new int?(Convert.ToInt32(pair.Value)) : null,
+                MemberAverageCommits = opt.AverageCommits ? new double?(pair.Value) : null
+            }).ToList();
+
+            if (opt.TotalCommits)
+            {
+                data.Sort((x, y) => -x.TotalCommits?.CompareTo(y.TotalCommits ?? 0) ?? 0);
+            }
+            else
+            {
+                data.Sort((x, y) => -x.MemberAverageCommits?.CompareTo(y.MemberAverageCommits ?? 0) ?? 0);
+            }
 
             SimpleJsonSerializer serializer = new SimpleJsonSerializer();
             string json = serializer.Serialize(data);

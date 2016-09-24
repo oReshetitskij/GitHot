@@ -88,7 +88,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CLI\Options.cs" />
+    <Compile Include="CLI\TopOrganizationsOptions.cs" />
     <Compile Include="CLI\TopRepositoriesOptions.cs" />
+    <Compile Include="POCO\TopOrganization.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="GithubApiHelpers.cs" />
     <Compile Include="GithubClientExtensions.cs" />
