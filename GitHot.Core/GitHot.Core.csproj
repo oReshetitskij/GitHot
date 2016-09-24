@@ -90,10 +90,12 @@
     <Compile Include="CLI\Options.cs" />
     <Compile Include="CLI\TopRepositoriesOptions.cs" />
     <Compile Include="Configuration.cs" />
+    <Compile Include="GithubApiHelpers.cs" />
     <Compile Include="GithubClientExtensions.cs" />
     <Compile Include="ObsersvableRepositoriesClientExtensions.cs" />
     <Compile Include="ObservableGithubClientExtensions.cs" />
     <Compile Include="ObservableStarredClientExtensions.cs" />
+    <Compile Include="OrganizationsClientExtensions.cs" />
     <Compile Include="CLI\StatisticsOptions.cs" />
     <Compile Include="POCO\TopRepository.cs" />
     <Compile Include="Program.cs" />
@@ -120,7 +122,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
