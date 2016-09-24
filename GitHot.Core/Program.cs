@@ -8,6 +8,7 @@ using Octokit;
 using Octokit.Internal;
 using Octokit.Reactive;
 using System.Reactive.Linq;
+using System.Security.AccessControl;
 using System.Threading.Tasks;
 using CommandLine;
 using GitHot.Core.CLI;
@@ -19,7 +20,7 @@ namespace GitHot.Core
     {
         static void Main(string[] args)
         {
-            args = new[] { "stats", "PowerShell/PowerShell", "-o", "powershell.json", "--stargazers"};
+            args = new[] { "stats", "tensorflow/models", "-o", "tensorflow-models.json", "--stargazers", "-s", "30.00:00:00" };
 
             var options = new Options();
             bool result = CommandLine.Parser.Default.ParseArguments(args, options, onVerbCommand:
@@ -122,13 +123,24 @@ namespace GitHot.Core
 
             try
             {
-                StreamWriter sw = new StreamWriter(opt.Output, false);
+                FileStream file = File.Create(opt.Output);
+                file.Close();
+
+                StreamWriter sw = new StreamWriter(opt.Output);
                 sw.Write(json);
                 sw.Close();
             }
             catch (ArgumentException)
             {
                 Console.WriteLine("Invalid output path");
+            }
+            catch (DirectoryNotFoundException)
+            {
+                Console.WriteLine($"Directory not found: {Path.GetFullPath(opt.Output)}");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                Console.WriteLine("Not enough privilegies to create file");
             }
         }
 

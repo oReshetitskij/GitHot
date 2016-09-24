@@ -84,7 +84,7 @@ namespace GitHot.Core
                 starsByDay.Add(new KeyValuePair<DateTime, int>(date, starsCount));
             }
 
-            starsByDay.Sort((x, y) => x.Key.CompareTo(y.Key));
+            starsByDay.Sort((x, y) => -x.Key.CompareTo(y.Key));
 
             return starsByDay.Select(c => c.Value).ToArray();
         }
