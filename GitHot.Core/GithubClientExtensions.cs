@@ -40,7 +40,6 @@ namespace GitHot.Core
             }
         }
 
-        public static async Task<Dictionary<Repository, int>> GetTopRepositoriesByCommits(this IGitHubClient client, int weeks, int count)
         public static async Task<Dictionary<Repository, int>> GetTopRepositoriesByCommits(this IGitHubClient client,
             int weeks, int count)
         {
