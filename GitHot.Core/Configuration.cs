@@ -9,6 +9,9 @@ namespace GitHot.Core
         public int MaxSubscriptions { get; protected set; }
         public int PageCount { get; protected set; }
         public int ItemsPerPage { get; protected set; }
+        public int ActivityDelay { get; protected set; }
+        public int ActivityMaxDelay { get; protected set; }
+        public int ActivityRetryCount { get; protected set; }
 
         private static Configuration _instance;
 

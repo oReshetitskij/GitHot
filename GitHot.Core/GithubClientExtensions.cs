@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -49,7 +50,8 @@ namespace GitHot.Core
 
             for (int page = 1; page <= Configuration.Instance.PageCount; page++)
             {
-                Console.WriteLine($"Page {page}");
+                Debug.WriteLine($"Page {page}");
+                Debug.Indent();
 
                 var searchResult = (await client.Search.SearchRepo(new SearchRepositoriesRequest
                 {
@@ -60,18 +62,28 @@ namespace GitHot.Core
                     Stars = Range.GreaterThan(100),
                 })).Items;
 
-                Dictionary<Repository, Task<CommitActivity>> pageRepos = searchResult.ToDictionary(repo => repo,
-                    repo => statsClient.GetCommitActivity(repo.Owner.Login, repo.Name));
+                Dictionary<Repository, Task<List<WeeklyCommitActivity>>> pageRepos = searchResult.ToDictionary(repo => repo,
+                    repo => statsClient.GetCommitActivityRaw(repo));
 
                 foreach (var result in pageRepos)
                 {
-                    topRepositories.Add(new KeyValuePair<Repository, int>(
-                        result.Key,
-                        (await result.Value).Activity
-                            .Skip(52 - weeks)
-                            .Select(week => week.Total)
-                            .Sum()
-                    ));
+                    try
+                    {
+                        topRepositories.Add(new KeyValuePair<Repository, int>(
+                            result.Key,
+                            (await result.Value)
+                                .Skip(52 - weeks)
+                                .Select(week => week.Total)
+                                .Sum()
+                        ));
+                    }
+                    catch (TimeoutException)
+                    {
+                        Debug.WriteLine($"Couldn't get commit activity for {result.Key.FullName}");
+                        continue;
+                    }
+
+                    Debug.Unindent();
                 }
 
                 topRepositories.Sort((x, y) => -x.Value.CompareTo(y.Value));
@@ -87,12 +99,12 @@ namespace GitHot.Core
             StatisticsClient statsClient = new StatisticsClient(new ApiConnection(client.Connection));
             List<KeyValuePair<Repository, int>> topRepositories = new List<KeyValuePair<Repository, int>>();
 
-            DateTime to = DateTime.Now;
-            DateTime from = to.AddDays(-weeks * 7);
+            DateTime from = DateTime.Now.AddDays(-weeks * 7);
 
             for (int page = 1; page <= Configuration.Instance.PageCount; page++)
             {
-                Console.WriteLine($"Page {page}");
+                Debug.WriteLine($"Page {page}");
+                Debug.Indent();
 
                 var searchResult = (await client.Search.SearchRepo(new SearchRepositoriesRequest
                 {
@@ -105,25 +117,26 @@ namespace GitHot.Core
 
 
                 var pageRepos = searchResult.ToDictionary(repo => repo,
-                                                repo => statsClient.GetContributors(repo.Owner.Login, repo.Name)).ToList();
+                                                repo => statsClient.GetContributorsRaw(repo)).ToList();
 
                 for (int i = 0; i < pageRepos.Count; i++)
                 {
                     try
                     {
                         var contributors =
-                            (await pageRepos[i].Value).Where(c => c.Weeks.Any(w => w.Week.DateTime.Date > from &&
-                                                                             w.Week.DateTime.Date < to &&
-                                                                             w.Commits > 0)).ToArray();
+                            (await pageRepos[i].Value).Where(c => c.Weeks.Any(w => w.Week.LocalDateTime.Date > from &&
+                                                                             w.Commits > 0));
 
-                        int contributorsBySpan = contributors.Length;
+                        int contributorsBySpan = contributors.Count();
                         topRepositories.Add(new KeyValuePair<Repository, int>(pageRepos[i].Key, contributorsBySpan));
                     }
-                    catch (Exception)
+                    catch (TimeoutException)
                     {
-                        Console.WriteLine($"Exception while processing {pageRepos[i].Key.FullName}");
+                        Debug.WriteLine($"Exception while processing {pageRepos[i].Key.FullName}");
                     }
                 }
+
+                Debug.Unindent();
             }
 
             topRepositories.Sort((x, y) => -x.Value.CompareTo(y.Value));
@@ -140,7 +153,8 @@ namespace GitHot.Core
 
             for (int page = 1; page <= Configuration.Instance.PageCount; page++)
             {
-                Console.WriteLine($"Page {page}");
+                Debug.WriteLine($"Page {page}");
+                Debug.Indent();
 
                 var searchResult = (await client.Search.SearchRepo(new SearchRepositoriesRequest
                 {
@@ -163,6 +177,8 @@ namespace GitHot.Core
 
                 topRepositories.Sort((x, y) => -x.Value.CompareTo(y.Value));
                 topRepositories = topRepositories.Take(count).ToList();
+
+                Debug.Unindent();
             }
 
             return topRepositories.ToDictionary(pair => pair.Key, pair => pair.Value);
@@ -175,7 +191,8 @@ namespace GitHot.Core
 
             for (int page = 1; page <= Configuration.Instance.PageCount; page++)
             {
-                Console.WriteLine($"Page {page}");
+                Debug.WriteLine($"Page {page}");
+                Debug.Indent();
 
                 var searchResult = (await client.Search.SearchUsers(new SearchUsersRequest("type:org")
                 {
@@ -195,6 +212,8 @@ namespace GitHot.Core
 
                 topOrganizations.Sort((x, y) => -x.Value.CompareTo(y.Value));
                 topOrganizations = topOrganizations.Take(count).ToList();
+
+                Debug.Unindent();
             }
 
             return topOrganizations.ToDictionary(pair => pair.Key, pair => pair.Value);
@@ -207,7 +226,8 @@ namespace GitHot.Core
 
             for (int page = 1; page <= Configuration.Instance.PageCount; page++)
             {
-                Console.WriteLine($"Page {page}");
+                Debug.WriteLine($"Page {page}");
+                Debug.Indent();
 
                 var searchResult = (await client.Search.SearchUsers(new SearchUsersRequest("type:org")
                 {
@@ -227,6 +247,8 @@ namespace GitHot.Core
 
                 topOrganizations.Sort((x, y) => -x.Value.CompareTo(y.Value));
                 topOrganizations = topOrganizations.Take(count).ToList();
+
+                Debug.Unindent();
             }
 
             return topOrganizations.ToDictionary(pair => pair.Key, pair => pair.Value);

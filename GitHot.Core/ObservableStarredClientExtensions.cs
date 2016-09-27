@@ -36,7 +36,7 @@ namespace GitHot.Core
                         using (WebClient web = new WebClient())
                         {
                             web.Headers.Add("User-agent",
-                                    "Mozilla / 5.0(Windows NT 6.1; WOW64; rv: 40.0) Gecko / 20100101 Firefox / 40.1");
+                                    "GitHot");
                             web.Headers.Add("Accept", "application/vnd.github.v3.star+json");
                             web.Headers.Add("Authorization", $"token {Configuration.Instance.Token}");
 

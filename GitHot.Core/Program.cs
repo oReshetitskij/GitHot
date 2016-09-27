@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Octokit;
@@ -15,7 +16,10 @@ namespace GitHot.Core
     {
         static void Main(string[] args)
         {
-            args = new[] { "repos", "-o", "contributors.json", "--contributors", "--count", "100", "--weeks", "2" };
+            Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
+            Debug.AutoFlush = true;
+
+            args = new[] { "repos", "-o", "contributors.json", "--contributors", "--count", "100", "--weeks", "4" };
 
             var options = new Options();
             bool result = Parser.Default.ParseArguments(args, options, onVerbCommand:

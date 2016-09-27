@@ -106,6 +106,7 @@
     <Compile Include="RepositoryCriteria.cs" />
     <Compile Include="StarredClientExtensions.cs" />
     <Compile Include="POCO\TrendingRepository.cs" />
+    <Compile Include="StatisticsClientExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
