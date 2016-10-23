@@ -99,7 +99,9 @@
     <Compile Include="ObservableStarredClientExtensions.cs" />
     <Compile Include="OrganizationsClientExtensions.cs" />
     <Compile Include="CLI\StatisticsOptions.cs" />
+    <Compile Include="POCO\TopOrganizationsList.cs" />
     <Compile Include="POCO\TopRepository.cs" />
+    <Compile Include="POCO\TopRepositoriesList.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RepositoriesClientExtensions.cs" />

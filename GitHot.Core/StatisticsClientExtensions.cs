@@ -87,9 +87,9 @@ namespace GitHot.Core
                     }
                 }
             }
-            catch (WebException e)
-            {
-                Debug.WriteLine($"Exception caught while processing {repo.FullName}");
+            catch (WebException)
+            { 
+                Debug.WriteLine($"WebException caught while processing {repo.FullName}");
                 throw;
             }
 
@@ -98,7 +98,7 @@ namespace GitHot.Core
                 SimpleJsonSerializer serializer = new SimpleJsonSerializer();
                 return serializer.Deserialize<List<Contributor>>(json);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Debug.WriteLine($"Exception caught while processing {repo.FullName}");
                 throw;

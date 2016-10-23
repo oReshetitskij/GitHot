@@ -17,9 +17,10 @@ namespace GitHot.Core
         static void Main(string[] args)
         {
             Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
+            Debug.Listeners.Add(new TextWriterTraceListener($"log/{DateTime.Now.ToString("dd-MM-yy-HHmmss")}.log"));
             Debug.AutoFlush = true;
 
-            args = new[] { "repos", "-o", "contributors.json", "--contributors", "--count", "100", "--weeks", "4" };
+            args = new[] { "repos", "-o", "commits.json", "--commits", "--count", "100", "--weeks", "4" };
 
             var options = new Options();
             bool result = Parser.Default.ParseArguments(args, options, onVerbCommand:
@@ -175,19 +176,24 @@ namespace GitHot.Core
                 criteria = "stargazers";
             }
 
-            var data = repos.ToList().Select(pair => new TopRepository
+            var data = new TopRepositoriesList()
+            {
+                Criteria = criteria,
+                CreatedAt = DateTime.Now.ToString("dd-MM-yy-HH:mm:ss"),
+                Weeks = opt.Weeks
+            };
+
+            data.Items = repos.ToList().Select(pair => new TopRepository
             {
                 Value = pair.Value,
-                Criteria = criteria,
                 Id = pair.Key.Id,
                 Name = pair.Key.Name,
                 Url = pair.Key.HtmlUrl,
                 OwnerName = pair.Key.Owner.Login,
                 OwnerUrl = pair.Key.Owner.HtmlUrl,
-                Weeks = opt.Weeks
             }).ToList();
 
-            data.Sort((x, y) => -x.Value.CompareTo(y.Value));
+            data.Items.Sort((x, y) => -x.Value.CompareTo(y.Value));
 
             SimpleJsonSerializer serializer = new SimpleJsonSerializer();
             string json = serializer.Serialize(data);
@@ -231,25 +237,22 @@ namespace GitHot.Core
                 orgs = await github.GetTopOrganizationsByMemberAverageCommits(opt.Weeks, opt.Count);
             }
 
+            var data = new TopOrganizationsList()
+            {
+                Criteria = opt.TotalCommits ? "total_commits" : "member_average_commits",
+                CreatedAt = DateTime.Now.ToString("dd-MM-yy-HH:mm:ss"),
+                Weeks = opt.Weeks
+            };
 
-            var data = orgs.ToList().Select(pair => new TopOrganization
+            data.Items = orgs.Select(pair => new TopOrganization
             {
                 Id = pair.Key.Id,
                 Name = pair.Key.Name,
                 Url = pair.Key.HtmlUrl,
-                Span = TimeSpan.FromDays(opt.Weeks * 7),
-                TotalCommits = opt.TotalCommits ? new int?(Convert.ToInt32(pair.Value)) : null,
-                MemberAverageCommits = opt.AverageCommits ? new double?(pair.Value) : null
+                Value = pair.Value,
             }).ToList();
 
-            if (opt.TotalCommits)
-            {
-                data.Sort((x, y) => -x.TotalCommits?.CompareTo(y.TotalCommits ?? 0) ?? 0);
-            }
-            else
-            {
-                data.Sort((x, y) => -x.MemberAverageCommits?.CompareTo(y.MemberAverageCommits ?? 0) ?? 0);
-            }
+            data.Items.Sort((x, y) => -x.Value.CompareTo(y.Value));
 
             SimpleJsonSerializer serializer = new SimpleJsonSerializer();
             string json = serializer.Serialize(data);

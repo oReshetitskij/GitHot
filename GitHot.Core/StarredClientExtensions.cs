@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -15,7 +16,7 @@ namespace GitHot.Core
             DateTime to = DateTime.Now;
             DateTime from = to.Add(-span);
 
-            string pattern = "\"starred_at\": \"(.*)\",";
+            string pattern = "\"starred_at\":\"([^\"]*)\"";
             Regex re = new Regex(pattern, RegexOptions.Compiled);
 
             int lastPage = repo.StargazersCount / Configuration.Instance.ItemsPerPage;
@@ -24,6 +25,8 @@ namespace GitHot.Core
             List<UserStar> starsArray = new List<UserStar>();
             SimpleJsonSerializer serializer = new SimpleJsonSerializer();
 
+
+            Debug.WriteLine($"Processing {repo.FullName}");
             for (int i = lastPage; i > 0; i--)
             {
                 using (WebClient web = new WebClient())
@@ -46,6 +49,7 @@ namespace GitHot.Core
                         var response = e.Response as HttpWebResponse;
                         if (response?.StatusCode == (HttpStatusCode)422)
                         {
+                            Debug.WriteLine($"422 (Unprocessable Entity) on {repo.FullName}");
                             return new int[span.Days];
                         }
 
@@ -85,6 +89,8 @@ namespace GitHot.Core
             }
 
             starsByDay.Sort((x, y) => -x.Key.CompareTo(y.Key));
+
+            Debug.WriteLine($"Finished processing {repo.FullName}");
 
             return starsByDay.Select(c => c.Value).ToArray();
         }
