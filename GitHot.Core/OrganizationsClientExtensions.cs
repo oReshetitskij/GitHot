@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Octokit;
@@ -12,30 +14,41 @@ namespace GitHot.Core
             DateTime to = DateTime.Now;
             DateTime from = to.Add(-TimeSpan.FromDays(7 * weeks));
 
-            int lastPage = GithubApiHelpers.GetLastPage($"https://api.github.com/search/repositories/q=user:{org.Login}");
-
             int commitsCount = 0;
-            for (int page = lastPage; page >= lastPage - Configuration.Instance.PageCount; page++)
+
+            // Take top 10 latest updated orgs repositories
+            Repository[] repos = (await github.Search.SearchRepo(new SearchRepositoriesRequest($"user:{org.Login}")
             {
-                Repository[] repos = (await github.Search.SearchRepo(new SearchRepositoriesRequest($"user:{org.Login}")
-                {
-                    Updated = DateRange.Between(from, to),
-                    Page = page,
-                    PerPage = Configuration.Instance.ItemsPerPage,
-                    SortField = RepoSearchSort.Updated
-                })).Items.ToArray();
+                Updated = DateRange.Between(from, to),
+                Page = 1,
+                PerPage = 10
+            })).Items.ToArray();
 
-                StatisticsClient statClient = new StatisticsClient(new ApiConnection(github.Connection));
-                var commits = repos.Select(repo => statClient.GetCommitActivity(repo.Owner.Login, repo.Name)).ToArray();
+            StatisticsClient statClient = new StatisticsClient(new ApiConnection(github.Connection));
+            List<Task<List<WeeklyCommitActivity>>> commits = new List<Task<List<WeeklyCommitActivity>>>();
 
-                for (int i = 0; i < commits.Length; i++)
+            foreach (var repo in repos)
+            {
+                commits.Add(statClient.GetCommitActivityRaw(repo));
+            }
+
+            Debug.WriteLine($"Started fetching {org.Login}");
+            foreach (Task<List<WeeklyCommitActivity>> t in commits)
+            {
+                try
                 {
-                    commitsCount += (await commits[i]).Activity
-                            .Skip(52 - weeks)
-                            .Select(week => week.Total)
-                            .Sum();
+                    commitsCount += (await t)
+                        .Skip(52 - weeks)
+                        .Select(week => week.Total)
+                        .Sum();
+                }
+                catch (TimeoutException e)
+                {
+                    Debug.WriteLine("[ERROR]: " + e.Message);
                 }
             }
+
+            Debug.WriteLine($"Finished fetching {org.Login}");
 
             return commitsCount;
         }
@@ -47,37 +60,47 @@ namespace GitHot.Core
             DateTime to = DateTime.Now;
             DateTime from = to.Add(-TimeSpan.FromDays(days));
 
-            int lastPage = GithubApiHelpers.GetLastPage($"https://api.github.com/search/repositories/q=user:{org.Login}");
-
             StatisticsClient statClient = new StatisticsClient(new ApiConnection(github.Connection));
 
             int totalRepoCommits = 0;
             int totalRepoContributors = 0;
-            for (int page = lastPage; page >= lastPage - Configuration.Instance.PageCount; page++)
+
+            // Take top 10 
+            Repository[] repos = (await github.Search.SearchRepo(new SearchRepositoriesRequest($"user:{org.Login}")
             {
-                Repository[] repos = (await github.Search.SearchRepo(new SearchRepositoriesRequest($"user:{org.Login}")
+                Updated = DateRange.Between(from, to),
+                Page = 1,
+                PerPage = 10
+            })).Items.ToArray();
+
+            var commitsByRepo = repos.ToDictionary(repo => repo, repo => statClient.GetCommitActivityRaw(repo));
+            var contributorsByRepo = repos.ToDictionary(repo => repo, repo => statClient.GetContributorsRaw(repo));
+
+            Debug.WriteLine($"Started fetching {org.Login}");
+            foreach (var repoCommits in commitsByRepo)
+            {
+                try
                 {
-                    Updated = DateRange.Between(from, to),
-                    Page = page,
-                    PerPage = Configuration.Instance.ItemsPerPage,
-                    SortField = RepoSearchSort.Updated
-                })).Items.ToArray();
+                    totalRepoCommits += (await repoCommits.Value)
+                        .Skip(52 - weeks)
+                        .Select(week => week.Total)
+                        .Sum();
 
-                var commitsByRepo = repos.ToDictionary(repo => repo, repo => statClient.GetCommitActivity(repo.Owner.Login, repo.Name));
-                var contributorsByRepo = repos.ToDictionary(repo => repo, repo => github.Repository.GetContributorsCount(repo, -TimeSpan.FromDays(days)));
-
-                foreach (var repoCommits in commitsByRepo)
+                    totalRepoContributors += (await contributorsByRepo[repoCommits.Key]).Sum(c => c.Total);
+                }
+                catch (TimeoutException e)
                 {
-                    totalRepoCommits += (await repoCommits.Value).Activity
-                                                .Skip(52 - weeks)
-                                                .Select(week => week.Total)
-                                                .Sum();
-
-                    totalRepoContributors += (await contributorsByRepo[repoCommits.Key]).Sum();
+                    Debug.WriteLine("[ERROR]: " + e.Message);
                 }
             }
+            Debug.WriteLine($"Finished fetching {org.Login}");
 
-            return (double)totalRepoCommits / totalRepoContributors;
+            if (totalRepoContributors == 0)
+            {
+                return 0;
+            }
+
+            return Math.Round((double)totalRepoCommits / totalRepoContributors, 2);
         }
     }
 }

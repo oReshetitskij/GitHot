@@ -194,20 +194,60 @@ namespace GitHot.Core
                 Debug.WriteLine($"Page {page}");
                 Debug.Indent();
 
-                var searchResult = (await client.Search.SearchUsers(new SearchUsersRequest("type:org")
+                IReadOnlyList<User> searchResult = new List<User>();
+                for (int i = 0; i < 3; i++)
                 {
-                    Order = SortDirection.Descending,
-                    PerPage = Configuration.Instance.ItemsPerPage,
-                    Page = page,
-                    Repositories = Range.GreaterThan(10)
-                })).Items;
+                    try
+                    {
+                        searchResult = (await client.Search.SearchUsers(new SearchUsersRequest("type:org")
+                        {
+                            Order = SortDirection.Descending,
+                            PerPage = Configuration.Instance.ItemsPerPage,
+                            Page = page,
+                            Repositories = Range.GreaterThan(3)
+                        })).Items;
+                        break;
+                    }
+                    catch (RateLimitExceededException e)
+                    {
+                        if (i > 3)
+                        {
+                            Debug.WriteLine("Break through ");
+                            throw;
+                        }
+                        await Task.Delay(200);
+                    }
+                }
 
-                Dictionary<User, Task<int>> pageOrgs = searchResult.ToDictionary(org => org,
-                    org => client.Organization.GetOrganizationCommitCount(org, weeks, client));
+                Dictionary<User, int> pageOrgs = new Dictionary<User, int>();
+
+                foreach (User org in searchResult)
+                {
+                    Debug.WriteLine($"Organization {org.Login}");
+                    for (int i = 0; i < 3; i++)
+                    {
+                        try
+                        {
+                            pageOrgs.Add(org, await client.Organization.GetOrganizationCommitCount(org, weeks, client));
+                            break;
+                        }
+                        catch (RateLimitExceededException e)
+                        {
+                            if (i < 3)
+                            {
+                                await Task.Delay(50);
+                                continue;
+                            }
+
+                            Debug.WriteLine("Break through ");
+                        }
+                    }
+                    Debug.WriteLine($"Organization {org.Login}");
+                }
 
                 foreach (var result in pageOrgs)
                 {
-                    topOrganizations.Add(new KeyValuePair<User, int>(result.Key, await result.Value));
+                    topOrganizations.Add(new KeyValuePair<User, int>(result.Key, result.Value));
                 }
 
                 topOrganizations.Sort((x, y) => -x.Value.CompareTo(y.Value));
@@ -229,20 +269,60 @@ namespace GitHot.Core
                 Debug.WriteLine($"Page {page}");
                 Debug.Indent();
 
-                var searchResult = (await client.Search.SearchUsers(new SearchUsersRequest("type:org")
+                IReadOnlyList<User> searchResult = new List<User>();
+                for (int i = 0; i < 3; i++)
                 {
-                    Order = SortDirection.Descending,
-                    PerPage = Configuration.Instance.ItemsPerPage,
-                    Page = page,
-                    Repositories = Range.GreaterThan(10)
-                })).Items;
+                    try
+                    {
+                        searchResult = (await client.Search.SearchUsers(new SearchUsersRequest("type:org")
+                        {
+                            Order = SortDirection.Descending,
+                            PerPage = Configuration.Instance.ItemsPerPage,
+                            Page = page,
+                            Repositories = Range.GreaterThan(3)
+                        })).Items;
+                        break;
+                    }
+                    catch (RateLimitExceededException e)
+                    {
+                        if (i > 3)
+                        {
+                            Debug.WriteLine("Break through ");
+                            throw;
+                        }
+                        await Task.Delay(200);
+                    }
+                }
 
-                Dictionary<User, Task<double>> pageOrgs = searchResult.ToDictionary(org => org,
-                    org => client.Organization.GetOrganizationMemberAverageCommitCount(org, weeks, client));
+                Dictionary<User, double> pageOrgs = new Dictionary<User, double>();
+
+                foreach (User org in searchResult)
+                {
+                    Debug.WriteLine($"Organization {org.Login}");
+                    for (int i = 0; i < 3; i++)
+                    {
+                        try
+                        {
+                            pageOrgs.Add(org, await client.Organization.GetOrganizationMemberAverageCommitCount(org, weeks, client));
+                            break;
+                        }
+                        catch (RateLimitExceededException e)
+                        {
+                            if (i < 3)
+                            {
+                                await Task.Delay(50);
+                                continue;
+                            }
+
+                            Debug.WriteLine("Break through ");
+                        }
+                    }
+                    Debug.WriteLine($"Organization {org.Login}");
+                }
 
                 foreach (var result in pageOrgs)
                 {
-                    topOrganizations.Add(new KeyValuePair<User, double>(result.Key, await result.Value));
+                    topOrganizations.Add(new KeyValuePair<User, double>(result.Key, result.Value));
                 }
 
                 topOrganizations.Sort((x, y) => -x.Value.CompareTo(y.Value));

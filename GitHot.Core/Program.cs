@@ -20,7 +20,7 @@ namespace GitHot.Core
             Debug.Listeners.Add(new TextWriterTraceListener($"log/{DateTime.Now.ToString("dd-MM-yy-HHmmss")}.log"));
             Debug.AutoFlush = true;
 
-            args = new[] { "repos", "-o", "commits.json", "--commits", "--count", "100", "--weeks", "4" };
+            args = new[] { "orgs", "-o", "orgs-avg.json", "--avg", "--count", "50", "--weeks", "52" };
 
             var options = new Options();
             bool result = Parser.Default.ParseArguments(args, options, onVerbCommand:

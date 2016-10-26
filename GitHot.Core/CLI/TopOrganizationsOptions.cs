@@ -13,10 +13,10 @@ namespace GitHot.Core.CLI
         [Option('o', "output", HelpText = "Filepath for saving output")]
         public string Output { get; set; }
 
-        [Option('t', "total", MutuallyExclusiveSet = "total", HelpText = "Get top repositories by total commits count")]
+        [Option('t', "total", MutuallyExclusiveSet = "total", HelpText = "Get top organizations by total commits count")]
         public bool TotalCommits { get; set; }
 
-        [Option('a', "avg", MutuallyExclusiveSet = "avg", HelpText = "Get top repositories by average commits count")]
+        [Option('a', "avg", MutuallyExclusiveSet = "avg", HelpText = "Get top organizations by average commits count")]
         public bool AverageCommits { get; set; }
 
         public string GetUsageDescription(string givenName)

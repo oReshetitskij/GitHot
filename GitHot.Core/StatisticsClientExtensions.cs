@@ -46,6 +46,11 @@ namespace GitHot.Core
                         Debug.WriteLine($"Finished processing {repo.FullName} in {i} tries");
                         break;
                     }
+                    else
+                    {
+                        Debug.WriteLine($"[ERROR]: Unknown status on {repo.FullName}");
+                        return new List<WeeklyCommitActivity>();
+                    }
                 }
             }
 
@@ -83,6 +88,11 @@ namespace GitHot.Core
                         {
                             Debug.WriteLine($"Finished processing {repo.FullName} in {i} tries");
                             break;
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"[ERROR]: Unknown status on {repo.FullName}");
+                            return new List<Contributor>();
                         }
                     }
                 }

@@ -11,6 +11,9 @@ namespace GitHot.Core.CLI
         [VerbOption("repos", HelpText = "Get top repositories by criteria", MutuallyExclusiveSet = "repos")]
         public TopRepositoriesOptions Repos { get; set; }
 
+        [VerbOption("orgs", HelpText = "Get top organizations by criteria", MutuallyExclusiveSet = "orgs")]
+        public TopOrganizationsOptions Organizations { get; set; }
+
         [HelpOption(MutuallyExclusiveSet = "help")]
         public string GetUsage()
         {
@@ -42,6 +45,11 @@ namespace GitHot.Core.CLI
             {
                 usageDescription = Repos.GetUsageDescription(verb);
                 options = Repos;
+            }
+            else if (verb == "orgs")
+            {
+                usageDescription = Organizations.GetUsageDescription(verb);
+                options = Organizations;
             }
             else
             {
