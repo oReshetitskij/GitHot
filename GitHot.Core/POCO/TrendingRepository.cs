@@ -2,9 +2,9 @@
 
 namespace GitHot.Core.POCO
 {
-    class TrendingRepository
+    public class TrendingRepository
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string Name { get; set; }
         public string Url { get; set; }
         public string OwnerName { get; set; }

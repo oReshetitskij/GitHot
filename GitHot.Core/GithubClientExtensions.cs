@@ -208,7 +208,7 @@ namespace GitHot.Core
                         })).Items;
                         break;
                     }
-                    catch (RateLimitExceededException e)
+                    catch (RateLimitExceededException)
                     {
                         if (i > 3)
                         {
@@ -231,7 +231,7 @@ namespace GitHot.Core
                             pageOrgs.Add(org, await client.Organization.GetOrganizationCommitCount(org, weeks, client));
                             break;
                         }
-                        catch (RateLimitExceededException e)
+                        catch (RateLimitExceededException)
                         {
                             if (i < 3)
                             {
@@ -283,7 +283,7 @@ namespace GitHot.Core
                         })).Items;
                         break;
                     }
-                    catch (RateLimitExceededException e)
+                    catch (RateLimitExceededException)
                     {
                         if (i > 3)
                         {
@@ -306,7 +306,7 @@ namespace GitHot.Core
                             pageOrgs.Add(org, await client.Organization.GetOrganizationMemberAverageCommitCount(org, weeks, client));
                             break;
                         }
-                        catch (RateLimitExceededException e)
+                        catch (RateLimitExceededException)
                         {
                             if (i < 3)
                             {
