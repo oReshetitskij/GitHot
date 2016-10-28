@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web;
+using System.Web.Hosting;
 using GitHot.Core;
 
 namespace GitHot.Modules
@@ -15,8 +16,15 @@ namespace GitHot.Modules
             Get["/repos/{criteria}/{weeks}"] = param =>
             {
                 string criteria = (string)(param["criteria"]);
+                char[] letters = criteria.ToCharArray();
 
-                string filepath = Path.Combine(pathProvider.GetRootPath(), "App_Data/repos/", criteria, "/", param["weeks"], ".json");
+                if (!Char.IsUpper(letters[0]))
+                {
+                    letters[0] = Char.ToUpper(letters[0]);
+                    criteria = new string(letters);
+                }
+
+                string filepath = Path.Combine(pathProvider.GetRootPath(), $"App_Data/repos/{criteria}/{param["weeks"]}.json");
 
                 string json;
                 Response resp;

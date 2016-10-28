@@ -12,7 +12,7 @@ namespace GitHot.Bootstrap
         {
             get
             {
-                return new RootPathProvider();
+                return new AspNetPathProvider();
             }
         }
     }

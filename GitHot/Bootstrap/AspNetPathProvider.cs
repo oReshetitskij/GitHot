@@ -4,16 +4,16 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Web;
+using System.Web.Hosting;
 using Nancy;
 
 namespace GitHot.Bootstrap
 {
-    public class RootPathProvider : IRootPathProvider
+    public class AspNetPathProvider : IRootPathProvider
     {
         public string GetRootPath()
         {
-            string dir = Directory.GetCurrentDirectory();
-            return Path.GetFullPath(dir);
+            return HostingEnvironment.MapPath("~/");
         }
     }
 }

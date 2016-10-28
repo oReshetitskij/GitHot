@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web;
+using System.Web.Hosting;
 
 namespace GitHot.Modules.API
 {
@@ -13,9 +14,9 @@ namespace GitHot.Modules.API
         {
             Get["/orgs/{criteria}/{weeks}"] = param =>
             {
-                string criteria = (string)(param.criteria);
+                string criteria = ((string)param.criteria).ToLower();
 
-                string filepath = Path.Combine(pathProvider.GetRootPath(), "App_Data/orgs/", criteria, "/", param["weeks"], ".json");
+                string filepath = Path.Combine(pathProvider.GetRootPath(), $"App_Data/orgs/{criteria}/{param["weeks"]}.json");
 
                 string json;
                 Response resp;

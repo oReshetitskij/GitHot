@@ -25,7 +25,7 @@ namespace GitHot.Modules.API
                     Credentials = new Credentials(token)
                 };
 
-                Repository repo = github.Repository.Get(param["owner"], param["repo"]);
+                Repository repo = await github.Repository.Get(param["owner"], param["repo"]);
                 TimeSpan weeks = TimeSpan.FromDays(param["weeks"] * 7);
 
                 string criteria = param["criteria"];
