@@ -1,0 +1,144 @@
+body {
+    display: table;
+    width: 100%;
+    height: 100%;
+}
+
+body header {
+    display: block;
+}
+
+body header +* {
+    display: table-row;
+    height: 100%;
+} 
+
+header {
+    text-align: center;
+    background: #074E68;
+    position: relative;
+    overflow: visible;
+    padding-top: 1.5rem;
+}
+
+header .headline {
+    color: #ffe;
+    padding: 0.3rem;
+}
+
+.header-subnav {
+    background: #074E68;
+    border: 0;
+    float: none;
+    position: absolute;
+    text-align: center;
+    margin: 0 auto;
+    bottom: 0;
+    width: 100%;
+}
+
+.header-subnav li {
+    display: inline-block;
+}
+
+.header-subnav li a {
+    padding: 0.9rem 1rem;
+    font-size: 0.75rem;
+    color: #ffe;
+    text-transform: uppercase;
+    text-align: center;
+    display: block;
+    font-weight: bold;
+    letter-spacing: 1px;
+    transition: all 0.35s ease-in-out; 
+}
+
+.header-subnav li a[aria-selected="false"]:hover,
+.header-subnav li a[aria-selected="false"]:focus {
+    background: rgba(250, 250, 250, 0.15);
+    transition: all 0.35 ease-in-out;
+}
+
+footer {
+    background-color: #074E68;
+    text-align: center;
+    padding: 10px;
+    color: white;
+}
+
+.tabs-title {
+    float: none;
+}
+
+.tabs-content {
+    border: 0;
+}
+
+.tabs-title > a[aria-selected="true"] {
+    background: white;
+    color: #074E68;
+}
+
+.tabs-content label {
+    font-size: 1.15em;
+    color: darkcyan;
+}
+
+.button {
+    background: #074E68; 
+}
+
+.button:hover {
+    background: white; 
+    color: #074E68;
+    border: 1px solid #074E68; 
+}
+
+input:invalid {
+    outline:none;
+    border-color:red;
+    box-shadow:0 0 5px red;
+}
+
+div.description {
+    border-radius: 10px;
+    background: #074E68;
+    padding: 15px;
+    margin-bottom: 20px; 
+    font-size: 1.25em;
+    color: white;
+}
+
+.stats-tab > a {
+    visibility: collapse;
+}
+
+.hide {
+    display: none;
+}
+
+.tab-header {
+    color: #074E68;
+}
+
+h3 {
+    color: darkcyan;
+}
+
+#main-tabs {
+    position: relative;
+}
+
+#loading-bar > img {
+    position: absolute;
+    width: 128px;
+    height: 128px;
+    top: 50%;
+    left: 50%;
+    margin: -64px 0 0 -64px;
+}
+
+#error-image {
+    display: block;
+    margin: 0 auto;
+}

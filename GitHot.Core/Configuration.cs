@@ -3,7 +3,7 @@ using System.IO;
 
 namespace GitHot.Core
 {
-    class Configuration
+    public class Configuration
     {
         public string Token { get; protected set; }
         public int MaxSubscriptions { get; protected set; }
@@ -15,6 +15,8 @@ namespace GitHot.Core
 
         private static Configuration _instance;
 
+        public static string InstancePath { private get; set; } = ".";
+
         public static Configuration Instance
         {
             get
@@ -23,7 +25,7 @@ namespace GitHot.Core
                 {
                     var serializer = new SimpleJsonSerializer();
 
-                    string json = File.ReadAllText("config.json");
+                    string json = File.ReadAllText(Path.Combine(InstancePath, "config.json"));
 
                     _instance = serializer.Deserialize<Configuration>(json);
                 }

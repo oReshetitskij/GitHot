@@ -1,10 +1,6 @@
 ﻿using Nancy;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Web;
-using System.Web.Hosting;
 using GitHot.Core;
 
 namespace GitHot.Modules
@@ -13,16 +9,9 @@ namespace GitHot.Modules
     {
         public TopRepositoriesModule(IRootPathProvider pathProvider)
         {
-            Get["/repos/{criteria}/{weeks}"] = param =>
+            Get["/repos/{criteria}/{weeks:int}"] = param =>
             {
-                string criteria = (string)(param["criteria"]);
-                char[] letters = criteria.ToCharArray();
-
-                if (!Char.IsUpper(letters[0]))
-                {
-                    letters[0] = Char.ToUpper(letters[0]);
-                    criteria = new string(letters);
-                }
+                string criteria = (string)param["criteria"];
 
                 string filepath = Path.Combine(pathProvider.GetRootPath(), $"App_Data/repos/{criteria}/{param["weeks"]}.json");
 
@@ -39,7 +28,7 @@ namespace GitHot.Modules
                         resp.StatusCode = HttpStatusCode.OK;
                     }
                 }
-                else if (!Enum.TryParse(criteria, out crit))
+                else if (!Enum.TryParse(criteria, true, out crit))
                 {
                     json = "{ error: 'Invalid criteria'}";
                     resp = json;

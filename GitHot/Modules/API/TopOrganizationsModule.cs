@@ -1,10 +1,5 @@
 ﻿using Nancy;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Web;
-using System.Web.Hosting;
 
 namespace GitHot.Modules.API
 {
@@ -12,12 +7,10 @@ namespace GitHot.Modules.API
     {
         public TopOrganizationsModule(IRootPathProvider pathProvider)
         {
-            Get["/orgs/{criteria}/{weeks}"] = param =>
+            Get["/orgs/{criteria}/{weeks:int}"] = param =>
             {
                 string criteria = ((string)param.criteria).ToLower();
-
                 string filepath = Path.Combine(pathProvider.GetRootPath(), $"App_Data/orgs/{criteria}/{param["weeks"]}.json");
-
                 string json;
                 Response resp;
 

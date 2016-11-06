@@ -1,0 +1,129 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>GitHot - get statistics on recently updated repositories.</title>
+	<meta charset="utf-8" />
+    <link rel="stylesheet" href="@Path['~/Content/css/foundation.css']">
+    <link rel="stylesheet" href="@Path['~/Content/css/app.css']">
+    <script src="@Path['~/Content/js/vendor/jquery.js']"></script>
+    <script src="@Path['~/Content/js/vendor/foundation.min.js']"></script>
+    <script src="@Path['~/Content/js/vendor/Chart.min.js']"></script>
+</head>
+<body>
+    <header>
+        <h1 class="headline">GitHot</h1>
+        <ul class="header-subnav tabs" data-tabs id="main-tabs">
+            <li class="tabs-title is-active" >
+                <a href="#panel-single" aria-selected="true">Single repository</a>
+            </li>
+            <li class="tabs-title">
+                <a href="#panel-repos">Top repositories</a>
+            </li>
+            <li class="tabs-title">
+                <a href="#panel-orgs">Top organizations</a>
+            </li>
+            <li class="tabs-title hide">
+                <a href="#stats-single">Single stats</a>
+            </li>
+            <li class="tabs-title hide">
+                <a href="#stats-repos">Top repos</a>
+            </li>
+            <li class="tabs-title hide">
+                <a href="#stats-orgs">Top organizations</a>
+            </li>
+            <li class="tabs-title hide">
+                <a href="#error-info">Error</a>
+            </li>
+        </ul>
+    </header>
+    <main>
+        <div class="tabs-content" data-tabs-content="main-tabs">
+            <div class="tabs-panel is-active" id="panel-single">
+                <form>
+                    <div class="row large-6 large-offset-2 columns">
+                        <label>Repository:</label>
+                        <input id="single-repo" type="text" placeholder="owner/repo" pattern="\w+/\w+"
+                        required>
+                    </div>
+                    <div class="row large-6 large-offset-2 columns">
+                        <label>Timespan (in days):</label>
+                        <input id="single-span" type="number" value="1" min="1" max="365" step="1" pattern="[0-9]{1,3}" required>
+                    </div>
+                    <div class="row large-4 large-offset-3 columns">
+                        <button id="btn-single" class="expanded button" href="#" title="owner/repo">Get Statistics!</button>
+                    </div>
+                </form>
+            </div>
+            <div class="tabs-panel" id="panel-repos">
+                <form>
+                    <div class="row large-6 large-offset-2 columns">
+                        <label>Timespan (in weeks):</label>
+                        <input id="repos-span" type="number" value="1" min="1" max="52" step="1" pattern="[0-9]{1,2}" required>
+                        <label>Count</label>
+                        <input id="repos-count" type="number" value="5" min="5" max="50" step="1" pattern="[0-9]{1,2}" required>
+                    </div>
+                    <div class="row large-4 large-offset-3 columns">
+                        <button id="btn-repos" class="expanded button" href="#" title="owner/repo">Get Statistics!</button>
+                    </div>
+                </form>
+            </div>
+            <div class="tabs-panel" id="panel-orgs">
+                <form>
+                    <div class="row large-6 large-offset-2 columns">
+                        <label>Timespan (in weeks):</label>
+                        <input id="orgs-span" type="number" value="1" min="1" max="52" step="1" pattern="[0-9]{1,2}" required>
+                        <label>Count</label>
+                        <input id="orgs-count" type="number" value="5" min="5" max="50" step="1" pattern="[0-9]{1,2}" required>
+                    </div>
+                    <div class="row large-4 large-offset-3 columns">
+                        <button id="btn-orgs" class="expanded button" href="#" title="owner/repo">Get Statistics!</button>
+                    </div>
+                </form>
+            </div>
+            <div class="tabs-panel" id="stats-single">
+                <div class="large-8 small-12 columns">
+                    <canvas id="stats-single-chart" style="width: 100%; height: 100%">
+                    </canvas>
+                </div>
+                <div class="large-4 small-12 columns" id="stats-single-info">
+                </div>
+            </div>
+            <div class="tabs-panel" id="stats-repos">
+                <h2 class="tab-header text-center">Top repositories</h2>
+                <div class="large-4 large-offset-0 small-12 columns" id="stats-repos-commits">
+                    <h3>Commits</h3>
+                </div>
+                <div class="large-4 large-offset-0 small-12 columns" id="stats-repos-contributors">
+                    <h3>Contributors</h3>
+                </div>
+                <div class="large-4 large-offset-0 small-12 columns" id="stats-repos-stargazers">
+                    <h3>Stargazers</h3>
+                </div>
+            </div>
+            <div class="tabs-panel" id="stats-orgs">
+                <h2 class="tab-header text-center">Top organizations</h2>
+                <div class="large-6 large-offset-0 small-12 columns" id="stats-orgs-total_commits">
+                    <h3>Total commits</h3>
+                </div>
+                <div class="large-6 large-offset-0 small-12 columns" id="stats-orgs-member_average_commits">
+                    <h3>Average commits</h3>
+                </div>            
+            </div>
+            <div class="tabs-panel" id="error-info">
+                <h2 class="text-center">Ooops... Looks like something has gone wrong</h2>
+                <img id="error-image" src="@Path['~/Content/img/err.jpg']"/>
+                <h3 class="text-center" id="error-message"></h3>
+            </div>
+        </div>
+        <div id="loading-bar">
+            <img src="@Path['~/Content/img/spinner.gif']" alt="spinner" />
+        </div>
+    </main>
+    <footer>Made for UA WebChallenge IX</footer>
+
+    <script>
+        $(document).foundation()
+    </script>
+    <script src="@Path['~/Content/js/app.js']"></script>
+</body>
+</html>

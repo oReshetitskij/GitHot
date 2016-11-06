@@ -1,0 +1,9 @@
+{
+  "token": "43c9828893e4dc1d354ad7f760eee3c31fac4970",
+  "max_subscriptions": 100,
+  "page_count": 20,
+  "items_per_page": 20,
+  "activity_delay": 100,
+  "activity_max_delay": 1600,
+  "activity_retry_count": 5
+}

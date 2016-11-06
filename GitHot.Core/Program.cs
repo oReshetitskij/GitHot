@@ -20,8 +20,7 @@ namespace GitHot.Core
             Debug.Listeners.Add(new TextWriterTraceListener($"log/{DateTime.Now.ToString("dd-MM-yy-HHmmss")}.log"));
             Debug.AutoFlush = true;
 
-            args = new[] { "orgs", "-o", "orgs-avg.json", "--avg", "--count", "50", "--weeks", "52" };
-
+            args = new[] { "orgs", "-o", "orgs-avg-4.json", "--avg", "--count", "50", "--weeks", "4" };
             var options = new Options();
             bool result = Parser.Default.ParseArguments(args, options, onVerbCommand:
                 (verb, subOption) =>
@@ -121,7 +120,8 @@ namespace GitHot.Core
                 Commits = stats[RepositoryCriteria.Commits],
                 Stars = stats[RepositoryCriteria.Stargazers],
                 Contributors = stats[RepositoryCriteria.Contributors],
-                Span = span
+                Span = span,
+                CreatedAt = DateTime.Now.ToString("yyyy-MM-dd")
             };
 
             SimpleJsonSerializer serializer = new SimpleJsonSerializer();
@@ -247,7 +247,7 @@ namespace GitHot.Core
             data.Items = orgs.Select(pair => new TopOrganization
             {
                 Id = pair.Key.Id,
-                Name = pair.Key.Name,
+                Name = pair.Key.Login,
                 Url = pair.Key.HtmlUrl,
                 Value = pair.Value,
             }).ToList();

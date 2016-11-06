@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace GitHot.Core.POCO
 {
-    class TopRepositoriesList
+    public class TopRepositoriesList
     {
         public string Criteria { get; set; }
         public string CreatedAt { get; set; }

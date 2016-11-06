@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace GitHot.Core.POCO
+﻿namespace GitHot.Core.POCO
 {
-    class TopOrganization
+    public class TopOrganization
     {
         public int Id { get; set; }
         public double Value { get; set; }

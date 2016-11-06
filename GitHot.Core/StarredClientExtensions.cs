@@ -52,7 +52,6 @@ namespace GitHot.Core
                             Debug.WriteLine($"422 (Unprocessable Entity) on {repo.FullName}");
                             return new int[span.Days];
                         }
-
                         throw;
                     }
 
